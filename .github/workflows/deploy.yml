@@ -28,6 +28,9 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          # Pages がまだ有効化されていなければ、このワークフローから自動で有効化する
+          enablement: true
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
