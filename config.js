@@ -6,7 +6,7 @@
  *   空のままだと「デモ/テストモード」で動きます（保存はされません）。
  * ============================================================ */
 const APP_CONFIG = {
-  endpoint: "",
+  endpoint: "https://script.google.com/macros/s/AKfycbyTrKTX-vjqEJwzLRgiKSB0lTdOhVHxllIJcMU0byjcG0AE_vR96m8_KzCWdDGYEon2/exec",
 };
 
 /** バックエンド（Apps Script）が接続済みかどうか */
