@@ -1,12 +1,7 @@
 /* ============================================================
- * 武雄高校 同窓会 出欠フォーム
- *
- * ▼ 設定：ここに Google Apps Script のウェブアプリ URL を貼る
- *   （セットアップ手順は README.md を参照）
- *   未設定（空文字）の場合は、送信内容を確認用に表示するだけのテストモードになります。
+ * 武雄高校 同窓会 出欠フォーム（一般ページ）
+ * 設定・API は config.js を参照（先に読み込むこと）
  * ============================================================ */
-const RSVP_ENDPOINT = "";
-
 const form = document.getElementById("rsvpForm");
 const statusEl = document.getElementById("formStatus");
 const submitBtn = document.getElementById("submitBtn");
@@ -15,7 +10,6 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   clearStatus();
 
-  // --- 入力チェック ---
   if (!form.checkValidity()) {
     const firstInvalid = form.querySelector(":invalid");
     if (firstInvalid) firstInvalid.focus();
@@ -23,29 +17,19 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  const data = new FormData(form);
-
-  // --- 送信 ---
+  const data = Object.fromEntries(new FormData(form).entries());
   setLoading(true);
 
-  // テストモード：エンドポイント未設定なら送信せず内容を表示
-  if (!RSVP_ENDPOINT) {
-    console.table(Object.fromEntries(data.entries()));
+  // 未接続ならテストモード（送信せず内容を表示）
+  if (!isConnected()) {
+    console.table(data);
     setLoading(false);
     setStatus("【テストモード】送信先が未設定です。入力内容はコンソールに表示しました。", "error");
     return;
   }
 
   try {
-    // Google Apps Script へは x-www-form-urlencoded で送ると CORS プリフライトを回避できる。
-    // レスポンスは読めない（no-cors）ため、成功は楽観的に扱う。
-    await fetch(RSVP_ENDPOINT, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams(data),
-    });
-
+    await apiCall("rsvp", data);
     form.reset();
     setStatus("送信しました！ご回答ありがとうございます 🎉 詳細が決まり次第ご連絡します。", "success");
   } catch (err) {
@@ -60,13 +44,11 @@ function setLoading(isLoading) {
   submitBtn.disabled = isLoading;
   submitBtn.textContent = isLoading ? "送信中…" : "この内容で送信する";
 }
-
 function setStatus(message, type) {
   statusEl.textContent = message;
   statusEl.classList.toggle("is-error", type === "error");
   statusEl.classList.toggle("is-success", type === "success");
 }
-
 function clearStatus() {
   statusEl.textContent = "";
   statusEl.classList.remove("is-error", "is-success");
