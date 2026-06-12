@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>幹事ダッシュボード ｜ 武雄高校 同窓会</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+  <!-- ===== ログイン ===== -->
+  <div id="loginView" class="login">
+    <div class="login__card">
+      <p class="login__eyebrow">武雄高校 同窓会</p>
+      <h1 class="login__title">幹事ダッシュボード</h1>
+      <p class="login__lead">パスワードを入力してください。</p>
+
+      <form id="loginForm" class="login__form">
+        <input type="password" id="loginPassword" placeholder="パスワード" autocomplete="current-password" />
+        <button type="submit" class="btn btn--primary" id="loginBtn">ログイン</button>
+      </form>
+      <p class="login__status" id="loginStatus" role="status" aria-live="polite"></p>
+
+      <div id="demoNote" class="login__demo" hidden>
+        <p>バックエンド未接続です。中身の確認用に <strong>デモ表示</strong> ができます。</p>
+        <button type="button" class="btn btn--ghost" id="demoBtn">デモを見る</button>
+      </div>
+      <p class="login__back"><a href="index.html">← 招待ページに戻る</a></p>
+    </div>
+  </div>
+
+  <!-- ===== ダッシュボード ===== -->
+  <div id="dashView" class="dash" hidden>
+    <header class="topbar">
+      <div class="topbar__left">
+        <span class="topbar__title">幹事ダッシュボード</span>
+        <span id="modeBadge" class="badge"></span>
+      </div>
+      <div class="topbar__right">
+        <button type="button" class="linkbtn" id="settingsBtn">設定</button>
+        <button type="button" class="linkbtn" id="reloadBtn">再読込</button>
+        <button type="button" class="linkbtn" id="logoutBtn">ログアウト</button>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab is-active" data-tab="rsvp">出欠</button>
+      <button class="tab" data-tab="tasks">スケジュール</button>
+      <button class="tab" data-tab="checklist">準備物</button>
+      <button class="tab" data-tab="budget">集金・予算</button>
+    </nav>
+
+    <main class="content">
+      <section id="panel-rsvp" class="panel is-active"></section>
+      <section id="panel-tasks" class="panel"></section>
+      <section id="panel-checklist" class="panel"></section>
+      <section id="panel-budget" class="panel"></section>
+    </main>
+  </div>
+
+  <!-- ===== 設定（パスワード変更）モーダル ===== -->
+  <div id="settingsModal" class="modal" hidden>
+    <div class="modal__card">
+      <h2>設定</h2>
+      <h3>パスワードの変更</h3>
+      <form id="pwForm" class="modal__form">
+        <input type="password" id="newPassword" placeholder="新しいパスワード（4文字以上）" autocomplete="new-password" />
+        <input type="password" id="newPassword2" placeholder="新しいパスワード（確認）" autocomplete="new-password" />
+        <button type="submit" class="btn btn--primary">変更する</button>
+      </form>
+      <p class="modal__status" id="pwStatus" role="status" aria-live="polite"></p>
+      <button type="button" class="linkbtn modal__close" id="settingsClose">閉じる</button>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

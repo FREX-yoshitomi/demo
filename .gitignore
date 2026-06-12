@@ -1,0 +1,6 @@
+# 生成物・プレビュー（ソースから作れるのでコミットしない）
+preview-*.html
+
+# 依存・OS
+node_modules/
+.DS_Store

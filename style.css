@@ -51,6 +51,17 @@ body {
   background: var(--paper);
   border-radius: 50% 50% 0 0 / 100% 100% 0 0;
 }
+/* メインビジュアル写真（assets/school.jpg があれば表示。無ければ下のグラデーションのまま） */
+.hero__photo {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(160deg, rgba(19, 29, 51, 0.78) 0%, rgba(19, 29, 51, 0.92) 100%),
+    url("assets/school.jpg");
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
 .hero__inner { position: relative; z-index: 1; }
 .hero__eyebrow {
   letter-spacing: 0.35em;
@@ -271,6 +282,9 @@ textarea { resize: vertical; }
 }
 .footer p { margin: 0 0 6px; }
 .footer__small { font-size: 0.72rem; color: rgba(255, 255, 255, 0.45); }
+.footer__admin { margin-top: 14px; }
+.footer__admin a { color: rgba(255, 255, 255, 0.55); font-size: 0.8rem; text-decoration: none; }
+.footer__admin a:hover { color: var(--gold-soft); }
 
 @media (min-width: 600px) {
   .section { padding: 72px 0; }

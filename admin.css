@@ -1,0 +1,158 @@
+:root {
+  --navy: #1d2b4a;
+  --navy-deep: #131d33;
+  --gold: #c8a25a;
+  --paper: #f4f5f8;
+  --card: #ffffff;
+  --ink: #25282d;
+  --ink-soft: #6b7280;
+  --line: #e5e7eb;
+  --green: #1e7a46;
+  --green-bg: #e7f4ec;
+  --amber: #b5732f;
+  --amber-bg: #fbf0e3;
+  --gray-bg: #eef0f3;
+  --red: #c0392b;
+  --radius: 12px;
+  --shadow: 0 4px 16px rgba(19, 29, 51, 0.07);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.btn {
+  border: none; cursor: pointer; font-family: inherit; font-weight: 700;
+  padding: 12px 24px; border-radius: 999px; font-size: 0.95rem;
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+.btn--primary { background: linear-gradient(135deg, var(--gold), #b88c45); color: var(--navy-deep); }
+.btn--primary:hover { transform: translateY(-1px); }
+.btn--ghost { background: transparent; border: 1.5px solid var(--line); color: var(--ink); }
+.btn:disabled { opacity: 0.6; cursor: progress; }
+.linkbtn {
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  color: rgba(255,255,255,0.8); font-size: 0.85rem; padding: 6px 8px;
+}
+.linkbtn:hover { color: #fff; text-decoration: underline; }
+
+/* ===== ログイン ===== */
+.login {
+  min-height: 100vh; display: grid; place-items: center; padding: 24px;
+  background: radial-gradient(circle at 50% 0%, rgba(200,162,90,0.18), transparent 55%),
+              linear-gradient(160deg, var(--navy), var(--navy-deep));
+}
+.login__card {
+  background: var(--card); border-radius: 18px; padding: 40px 32px;
+  width: min(420px, 100%); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+.login__eyebrow { letter-spacing: 0.2em; font-size: 0.72rem; color: var(--gold); margin: 0 0 8px; }
+.login__title { font-size: 1.4rem; margin: 0 0 6px; }
+.login__lead { color: var(--ink-soft); font-size: 0.9rem; margin: 0 0 24px; }
+.login__form { display: flex; flex-direction: column; gap: 12px; }
+.login__form input { padding: 13px 14px; border: 1.5px solid var(--line); border-radius: 10px; font-size: 1rem; }
+.login__form input:focus { outline: none; border-color: var(--gold); }
+.login__status { min-height: 1.2em; font-weight: 700; color: var(--red); font-size: 0.88rem; margin: 14px 0 0; }
+.login__demo { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--ink-soft); }
+.login__demo .btn { margin-top: 8px; }
+.login__back { margin: 22px 0 0; }
+.login__back a { color: var(--ink-soft); font-size: 0.82rem; text-decoration: none; }
+
+/* ===== トップバー ===== */
+.topbar {
+  background: var(--navy); color: #fff; display: flex; align-items: center;
+  justify-content: space-between; padding: 12px 18px; position: sticky; top: 0; z-index: 10;
+}
+.topbar__title { font-weight: 700; }
+.topbar__left { display: flex; align-items: center; gap: 12px; }
+.badge { font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.badge--live { background: var(--green-bg); color: var(--green); }
+.badge--demo { background: var(--amber-bg); color: var(--amber); }
+
+/* ===== タブ ===== */
+.tabs {
+  display: flex; gap: 4px; background: var(--card); padding: 0 12px;
+  border-bottom: 1px solid var(--line); position: sticky; top: 49px; z-index: 9; overflow-x: auto;
+}
+.tab {
+  border: none; background: none; cursor: pointer; font-family: inherit;
+  font-size: 0.92rem; font-weight: 700; color: var(--ink-soft);
+  padding: 14px 16px; border-bottom: 3px solid transparent; white-space: nowrap;
+}
+.tab.is-active { color: var(--navy); border-bottom-color: var(--gold); }
+
+/* ===== コンテンツ ===== */
+.content { max-width: 960px; margin: 0 auto; padding: 22px 16px 64px; }
+.panel { display: none; }
+.panel.is-active { display: block; }
+.panel__head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.panel__title { font-size: 1.15rem; margin: 0; }
+.panel__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* サマリーカード */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.card { background: var(--card); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); text-align: center; }
+.card__num { font-size: 1.7rem; font-weight: 900; color: var(--navy); }
+.card__label { font-size: 0.78rem; color: var(--ink-soft); margin-top: 2px; }
+.card--green .card__num { color: var(--green); }
+.card--amber .card__num { color: var(--amber); }
+
+/* 進捗バー */
+.progress { background: var(--card); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); margin-bottom: 18px; }
+.progress__label { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; }
+.progress__track { height: 10px; background: var(--gray-bg); border-radius: 999px; overflow: hidden; }
+.progress__fill { height: 100%; background: linear-gradient(90deg, var(--gold), #b88c45); border-radius: 999px; transition: width 0.3s; }
+
+/* テーブル */
+.table-wrap { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { background: #fafbfc; font-size: 0.76rem; color: var(--ink-soft); white-space: nowrap; position: sticky; top: 0; }
+tr:last-child td { border-bottom: none; }
+td input, td select {
+  width: 100%; border: 1px solid transparent; background: transparent; font-family: inherit;
+  font-size: 0.88rem; padding: 6px 8px; border-radius: 6px; color: var(--ink);
+}
+td input:hover, td select:hover { border-color: var(--line); }
+td input:focus, td select:focus { outline: none; border-color: var(--gold); background: #fff; }
+td.num input { text-align: right; }
+
+/* ステータス select の色 */
+select.st-done { background: var(--green-bg); color: var(--green); font-weight: 700; }
+select.st-prog { background: var(--amber-bg); color: var(--amber); font-weight: 700; }
+select.st-todo { background: var(--gray-bg); color: var(--ink-soft); font-weight: 700; }
+select.kind-in  { background: var(--green-bg); color: var(--green); font-weight: 700; }
+select.kind-out { background: #fbe9e7; color: var(--red); font-weight: 700; }
+
+.del-btn { background: none; border: none; cursor: pointer; color: #bbb; font-size: 1.1rem; padding: 4px 8px; border-radius: 6px; }
+.del-btn:hover { color: var(--red); background: #fbe9e7; }
+
+.cat-chip { display: inline-block; background: var(--gray-bg); color: var(--ink-soft); font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+
+.addbar { margin-top: 12px; }
+.addbar .btn { font-size: 0.85rem; padding: 9px 18px; }
+
+.search { width: 100%; max-width: 280px; padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 10px; font-size: 0.9rem; font-family: inherit; }
+.search:focus { outline: none; border-color: var(--gold); }
+
+.empty { text-align: center; color: var(--ink-soft); padding: 28px; font-size: 0.9rem; }
+.msg { font-weight: 700; font-size: 0.85rem; min-height: 1.2em; }
+.msg.is-error { color: var(--red); }
+.msg.is-success { color: var(--green); }
+
+/* モーダル */
+.modal { position: fixed; inset: 0; background: rgba(19,29,51,0.5); display: grid; place-items: center; z-index: 50; padding: 20px; }
+.modal__card { background: #fff; border-radius: 16px; padding: 28px; width: min(420px, 100%); }
+.modal__card h2 { margin: 0 0 4px; font-size: 1.2rem; }
+.modal__card h3 { font-size: 0.95rem; color: var(--ink-soft); margin: 18px 0 10px; }
+.modal__form { display: flex; flex-direction: column; gap: 10px; }
+.modal__form input { padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 10px; font-size: 1rem; }
+.modal__form input:focus { outline: none; border-color: var(--gold); }
+.modal__status { min-height: 1.2em; font-weight: 700; font-size: 0.85rem; }
+.modal__status.is-error { color: var(--red); }
+.modal__status.is-success { color: var(--green); }
+.modal__close { color: var(--ink-soft); display: block; margin: 16px auto 0; }
