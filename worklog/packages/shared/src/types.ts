@@ -37,7 +37,21 @@ export type WorkType = "normal" | "shift" | "night" | "leave" | "absent" | "remo
 /** 通知・撮影率の分母から除外される勤務区分（運用ケース「有給・欠勤」） */
 export const NON_WORKING_TYPES: readonly WorkType[] = ["leave", "absent"];
 
-export type CaptureStatus = "uploaded" | "processing" | "ready" | "deleted";
+/**
+ * 撮影の状態。
+ *
+ * 設計書 3.1 は uploaded / processing / ready / deleted の4つだが、
+ * 「署名付きURLを発行してスロットを予約したが、まだ実ファイルが無い」状態を
+ * 表す値が無いと、二重撮影の防止（決定的IDでの予約）と
+ * グリッドの空きコマ表示 (F-304) が両立できないため `pending` を追加した。
+ *
+ *   pending    issueUploadUrl でスロットを予約。グリッドでは空きコマ扱い
+ *   uploaded   実ファイルの存在を確認済み（commit が先に来た場合）
+ *   processing サムネイル生成中
+ *   ready      グリッド・Vlog の対象 (F-301)
+ *   deleted    本人が映像を削除。枠と時刻だけ残す (F-902, F-706)
+ */
+export type CaptureStatus = "pending" | "uploaded" | "processing" | "ready" | "deleted";
 export type VlogStatus = "pending" | "generating" | "ready" | "failed";
 export type ReportStatus = "draft" | "submitted";
 export type CorrectionStatus = "pending" | "approved" | "rejected";
@@ -75,9 +89,14 @@ export interface TenantDoc {
   theme?: TenantTheme;
   /**
    * 未登録ユーザーの初回ログインを自動で受け入れるか。
-   * false のときは管理Webでの事前登録が必須（設計書 4.1 d）。
+   * false のときは招待（invites）または管理Webでの事前登録が必須（設計書 4.1 d）。
    */
   autoProvisionUsers: boolean;
+  /**
+   * 初回ログイン時に role と所属を割り当てる招待 (F-508)。
+   * uid が分からない段階でも管理者を用意できるようにメールで持つ。消費したら削除される。
+   */
+  invites?: { email: string; role: Role; departmentIds?: string[] }[];
   createdAt: Timestampish;
   updatedAt: Timestampish;
 }
