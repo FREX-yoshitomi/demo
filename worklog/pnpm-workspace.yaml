@@ -1,0 +1,13 @@
+packages:
+  - "packages/*"
+  - "functions"
+  - "app"
+  - "web"
+  - "jobs/*"
+  - "firebase/rules-tests"
+allowBuilds:
+  '@firebase/util': true
+  esbuild: true
+  protobufjs: true
+  # re2 はネイティブビルドが必要で、Firestore ルールの評価には使われないため無効のまま
+  re2: false

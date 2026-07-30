@@ -1,0 +1,64 @@
+rules_version = '2';
+
+// Cloud Storage セキュリティルール（設計書 4.3）
+//
+// - 動画・サムネイル・Vlog の GET は同一テナントのみ
+// - PUT は一切許可しない。アップロードは署名付きURL（15分）だけを経路にする
+//   （署名付きURLは GCS 側で検証されるため、このルールの評価対象外）
+// - エクスポート物（勤怠CSV・解約時データ）はテナント管理者のみ
+//
+// ⚠️ Firestore と同様に allow は OR 評価。`/tenants/{tid}/{allPaths=**}` のような
+//    広いマッチを1つ置くと、exports の tenantAdmin 限定が打ち消される
+//    （マッチの記述順は評価順に影響しない）。そのため用途ごとにパスを明示列挙する。
+//    **新しい保存先を増やしたら、ここに追記して storage-isolation.test.ts も足すこと。**
+//    列挙漏れは「読めない」側に倒れる。
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function tenantId() {
+      return signedIn() ? request.auth.token.get('tenantId', '') : '';
+    }
+
+    function role() {
+      return signedIn() ? request.auth.token.get('role', '') : '';
+    }
+
+    function inTenant(t) {
+      return signedIn() && tenantId() != '' && tenantId() == t;
+    }
+
+    // 2秒動画 (F-303 単体再生)
+    match /tenants/{tid}/captures/{businessDate}/{fileName} {
+      allow read: if inTenant(tid);
+      allow write: if false;
+    }
+
+    // サムネイル (F-301 グリッド表示)
+    match /tenants/{tid}/thumbs/{businessDate}/{fileName} {
+      allow read: if inTenant(tid);
+      allow write: if false;
+    }
+
+    // 生成済み Vlog (F-306)
+    match /tenants/{tid}/vlogs/{businessDate}/{fileName} {
+      allow read: if inTenant(tid);
+      allow write: if false;
+    }
+
+    // 勤怠CSV・解約時エクスポート (F-704, F-806)。管理者のみ
+    match /tenants/{tid}/exports/{fileName} {
+      allow read: if inTenant(tid) && role() == 'tenantAdmin';
+      allow write: if false;
+    }
+
+    // 上のいずれにもマッチしないパスは全面拒否
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

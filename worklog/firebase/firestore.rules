@@ -1,0 +1,128 @@
+rules_version = '2';
+
+// ワークログアプリ Firestore セキュリティルール
+//
+// 方針（設計書 4.2 / CLAUDE.md「絶対に守ること」）
+//   1. 書き込みは原則すべて禁止。Admin SDK（Functions）だけが書く
+//   2. 読み取りは「テナント境界」をここで機械的に保証する
+//   3. 部署単位の細かい閲覧制御は Functions + クエリ側で行う
+//
+// ⚠️ Firestore のルールは「マッチした allow のいずれかが true なら許可」= OR 評価。
+//    そのため `match /{document=**}` のような緩いキャッチオールを置くと、
+//    個別コレクションの厳しいルール（例: reports の本人限定）を無効化してしまう。
+//    設計書 4.2 の骨子にはキャッチオールがあるが、意図的に外して全コレクションを
+//    明示列挙している。**新しいコレクションを足したらここに追記し、分離テストも足すこと。**
+//    列挙漏れは「読めない」側に倒れるので、事故ではなく不便として気づける。
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Custom Claims に焼き込まれた tenantId のみを信用する (F-503)
+    function tenantId() {
+      return signedIn() ? request.auth.token.get('tenantId', '') : '';
+    }
+
+    function role() {
+      return signedIn() ? request.auth.token.get('role', '') : '';
+    }
+
+    function inTenant(t) {
+      return signedIn() && tenantId() != '' && tenantId() == t;
+    }
+
+    function isDeptAdmin() {
+      return role() == 'deptAdmin' || role() == 'tenantAdmin';
+    }
+
+    function isTenantAdmin() {
+      return role() == 'tenantAdmin';
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // -----------------------------------------------------------------------
+    // 提供者（FREX）側のデータ。クライアントからは一切触れない。
+    // /ops 配下は Functions / Admin SDK 経由のみ (F-509)
+    // -----------------------------------------------------------------------
+    match /ops/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /tenants/{tid} {
+
+      // テナント設定 (F-506)。読み取りは自テナントのみ、変更は Functions 経由
+      allow get: if inTenant(tid);
+      allow list: if false;
+      allow write: if false;
+
+      // 同僚の氏名・所属はグリッド表示に必要なのでテナント内に開く
+      match /users/{uid} {
+        allow read: if inTenant(tid);
+        allow write: if false;
+      }
+
+      match /departments/{deptId} {
+        allow read: if inTenant(tid);
+        allow write: if false;
+      }
+
+      // 撮影 (F-301)。閲覧範囲（自部署のみ／横断）の細分化はクエリ + Functions 側で行い、
+      // ここではテナント境界までを保証する
+      match /captures/{captureId} {
+        allow read: if inTenant(tid);
+        allow write: if false;
+      }
+
+      // 「撮影しない時間」の申告 (F-113)。本人と管理者のみ
+      match /offDeclarations/{docId} {
+        allow read: if inTenant(tid) &&
+                       (resource.data.userId == request.auth.uid || isDeptAdmin());
+        allow write: if false;
+      }
+
+      match /vlogs/{vlogId} {
+        allow read: if inTenant(tid);
+        allow write: if false;
+      }
+
+      // 日報は本人と管理者のみ (F-407)。同僚には見せない
+      match /reports/{reportId} {
+        allow get: if inTenant(tid) &&
+                      (resource.data.userId == request.auth.uid || isDeptAdmin());
+        allow list: if inTenant(tid) && isDeptAdmin();
+        allow write: if false;
+      }
+
+      // 勤怠も本人と管理者のみ
+      match /attendance/{recordId} {
+        allow get: if inTenant(tid) &&
+                      (resource.data.userId == request.auth.uid || isDeptAdmin());
+        allow list: if inTenant(tid) && isDeptAdmin();
+        allow write: if false;
+      }
+
+      // 撮影率などの集計値（daily-aggregator が書く）
+      match /dailyStats/{date} {
+        allow read: if inTenant(tid) && isDeptAdmin();
+        allow write: if false;
+      }
+
+      // 監査ログ (F-805)。追記も Functions のみ。テナント管理者でも消せない
+      match /auditLogs/{logId} {
+        allow read: if inTenant(tid) && isTenantAdmin();
+        allow create, update, delete: if false;
+      }
+    }
+
+    // 上のいずれにもマッチしないパスは全面拒否（新コレクションの列挙漏れ対策）
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

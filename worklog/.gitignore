@@ -1,0 +1,23 @@
+node_modules/
+dist/
+lib/
+.expo/
+.next/
+coverage/
+*.tsbuildinfo
+
+# Firebase emulator
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+pubsub-debug.log
+.firebase/
+emulator-data/
+
+# 秘密情報はコミットしない（Secret Manager を使う）
+.env
+.env.*
+!.env.example
+*-service-account.json
+google-services.json
+GoogleService-Info.plist

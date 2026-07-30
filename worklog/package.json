@@ -1,0 +1,23 @@
+{
+  "name": "worklog",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter @worklog/shared build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "test:rules": "pnpm --filter @worklog/rules-tests test",
+    "emulators": "firebase emulators:start --project worklog-dev",
+    "seed": "tsx scripts/seed.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

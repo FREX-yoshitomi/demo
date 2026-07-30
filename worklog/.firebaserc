@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "worklog-dev",
+    "dev": "worklog-dev",
+    "stg": "worklog-stg",
+    "prod": "worklog-prod"
+  }
+}
