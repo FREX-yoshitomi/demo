@@ -204,6 +204,27 @@ export function nextSlotAfter(
   return null;
 }
 
+/**
+ * now の時点で「いま開いているスロット」（直前に始まったもの）を返す。
+ * 通知を見落として後から撮る場合の対象枠を決めるのに使う。
+ *
+ * 端末のローカル時刻ではなく **テナントのタイムゾーン** で判定する（設計書 8.4）。
+ */
+export function currentSlotAt(
+  now: Date,
+  timezoneName: string,
+  workingHours: WorkingHours,
+  intervalMin: number,
+): SlotRef | null {
+  const businessDate = resolveBusinessDate(now, timezoneName, workingHours);
+  let current: SlotRef | null = null;
+  for (const slotKey of listSlotKeys(workingHours, intervalMin)) {
+    const startsAt = slotStartAt(businessDate, slotKey, timezoneName, workingHours);
+    if (startsAt.getTime() <= now.getTime()) current = { businessDate, slotKey, startsAt };
+  }
+  return current;
+}
+
 /** 撮影率の分母。休日・非稼働区分の除外は呼び出し側で判定する (F-802, 運用ケース) */
 export function expectedSlotCount(workingHours: WorkingHours, intervalMin: number): number {
   return listSlotKeys(workingHours, intervalMin).length;

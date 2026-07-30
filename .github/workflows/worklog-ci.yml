@@ -1,0 +1,85 @@
+name: worklog CI
+
+# ワークログアプリ（worklog/）の CI。
+# 設計書 第11章：lint → typecheck → unit → rules test → build。
+# **rules test の失敗はマージ不可**（テナント分離は事業上の致命的リスク）。
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "worklog/**"
+      - ".github/workflows/worklog-ci.yml"
+  pull_request:
+    paths:
+      - "worklog/**"
+      - ".github/workflows/worklog-ci.yml"
+
+concurrency:
+  group: worklog-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: worklog
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node をセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: pnpm を有効化
+        run: corepack enable && corepack prepare pnpm@11.18.0 --activate
+
+      - name: pnpm store をキャッシュ
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('worklog/pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+
+      # Firestore / Storage エミュレータは JVM 上で動く
+      - name: Java をセットアップ
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Firebase エミュレータをキャッシュ
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: firebase-emulators-${{ runner.os }}-${{ hashFiles('worklog/firebase.json') }}
+          restore-keys: firebase-emulators-${{ runner.os }}-
+
+      - name: 依存をインストール
+        run: pnpm install --frozen-lockfile
+
+      - name: 共有パッケージをビルド
+        run: pnpm --filter @worklog/shared build
+
+      - name: 型チェック
+        run: pnpm -r typecheck
+
+      - name: ユニットテスト（共有ロジック・Functions）
+        run: |
+          pnpm --filter @worklog/shared test
+          pnpm --filter @worklog/functions test
+
+      # ここが落ちたらマージしない（受け入れ基準 #1）
+      - name: テナント分離テスト（Firestore / Storage ルール）
+        run: pnpm --filter @worklog/rules-tests test
+
+      - name: Functions 統合テスト（エミュレータ）
+        run: pnpm --filter @worklog/functions test:emulator
+
+      - name: Functions をビルド
+        run: pnpm --filter @worklog/functions build

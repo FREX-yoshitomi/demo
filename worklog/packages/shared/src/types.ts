@@ -104,6 +104,12 @@ export interface TenantDoc {
 export interface UserDoc {
   email: string;
   name: string;
+  /**
+   * 氏名の読み（かな）。
+   * 漢字の氏名は localeCompare('ja') でも五十音順にならない（部首・コードポイント順になる）ため、
+   * 「氏名順」で並べる (F-305) にはこの読みが必要。未設定なら name でフォールバックする。
+   */
+  nameKana?: string;
   photoUrl?: string;
   departmentIds: string[];
   role: Role;

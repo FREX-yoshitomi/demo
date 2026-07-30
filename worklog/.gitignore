@@ -1,8 +1,14 @@
 node_modules/
-dist/
-lib/
-.expo/
-.next/
+
+# ビルド成果物。パスを固定する（`lib/` だけだと app/src/lib/ まで無視してしまう）
+/packages/*/dist/
+/functions/lib/
+/jobs/*/dist/
+/web/.next/
+/app/.expo/
+/app/android/
+/app/ios/
+/app/dist/
 coverage/
 *.tsbuildinfo
 

@@ -5,6 +5,11 @@ packages:
   - "web"
   - "jobs/*"
   - "firebase/rules-tests"
+# Metro（React Native）はシンボリックリンクの解決が弱く、
+# 依存を .pnpm の仮想ストアに置くと推移的依存（whatwg-fetch 等）を解決できない。
+# Expo アプリをビルドするために依存を平坦に展開する。変更しないこと。
+nodeLinker: hoisted
+
 allowBuilds:
   '@firebase/util': true
   esbuild: true
@@ -13,3 +18,22 @@ allowBuilds:
   protobufjs: true
   # re2 はネイティブビルドが必要で、Firestore ルールの評価には使われないため無効のまま
   re2: false
+minimumReleaseAgeExclude:
+  - '@expo/cli@57.0.11'
+  - '@expo/inline-modules@0.1.4'
+  - '@expo/local-build-cache-provider@57.0.5'
+  - '@expo/log-box@57.0.2'
+  - '@expo/metro-runtime@57.0.8'
+  - '@expo/prebuild-config@57.0.10'
+  - '@expo/ui@57.0.8'
+  - babel-preset-expo@57.0.5
+  - expo-asset@57.0.8
+  - expo-build-properties@57.0.8
+  - expo-constants@57.0.8
+  - expo-dev-client@57.0.10
+  - expo-dev-launcher@57.0.10
+  - expo-dev-menu@57.0.10
+  - expo-modules-core@57.0.8
+  - expo-notifications@57.0.8
+  - expo-router@57.0.9
+  - expo@57.0.9

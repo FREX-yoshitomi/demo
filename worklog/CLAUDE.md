@@ -27,6 +27,23 @@
 - **バックグラウンド自動撮影は実装しない**：OS制約で不可能。通知起点の手動撮影が仕様。
 - **リージョンは asia-northeast1 に固定**：データを国外に出さない。
 
+## 設計書からの意図的な逸脱
+
+実装して分かった制約により、設計書と違う形にした箇所。**元に戻さないこと。**
+理由はコード側のコメントにも書いてある。
+
+| 箇所 | 設計書 | 実装 | 理由 |
+|---|---|---|---|
+| セキュリティルール | `match /{document=**}` のキャッチオールで read を許可 | キャッチオールを外し、全コレクションを明示列挙 | ルールの `allow` は **OR 評価**。緩いキャッチオールがあると reports の本人限定などの厳しいルールが無効化される。列挙漏れは「読めない」側に倒れる |
+| Storage ルール | `/tenants/{t}/{allPaths=**}` で一括許可 | 用途ごとにパスを列挙（captures / thumbs / vlogs / exports） | 同じ OR 評価の問題。実際に exports の管理者限定がワイルドカードに打ち消されるのをテストで検出した |
+| `hd` クレーム | IDトークンの `hd` を検証 | 検証済みメールのドメインを照合 | Firebase Auth の IDトークンに Google の `hd` は**入らない**。本物の `hd` は Identity Platform の blocking function からしか読めない。ゲートはサーバー側の `domainIndex` なので強度は同じ。個人Gmailは別途明示的に拒否 |
+| `captureId` | `${uid}_${businessDate}_${slotKey}` | slotKey 部分を `1200` 形式に（`paths.ts` の `slotToken`） | `:` は GCS のオブジェクト名・署名付きURLで扱いが面倒。Firestore の `slotKey` フィールドは `12:00` のまま |
+| `CaptureStatus` | uploaded / processing / ready / deleted | `pending` を追加 | 「枠を予約したが実ファイルが無い」状態が無いと、二重撮影の防止と空きコマ表示 (F-304) が両立しない |
+| グリッドのサムネイル | CDN 経由で配信 | Storage のパスからURLを組み立て、IDトークンを Authorization ヘッダで送る | `getDownloadURL()` は①1件ごとに往復が要る（100人分を2秒以内に出せない）②返るURLがルールを迂回する capability URL。テナント分離を優先した |
+| 氏名順 (F-305) | 氏名で並べる | `nameKana`（読み）で並べる。無ければ氏名で代替 | 漢字は `localeCompare('ja')` でも五十音順にならない（「佐藤」<「青木」になる）。読みが無いと五十音順は原理的に作れない |
+| iOS 対応下限 | iOS 16 以降 | 実質 iOS 16.4 以降 | Expo 57 / React Native 0.86 の下限。非機能要件の見直しが必要 |
+| pnpm の配置 | （記載なし） | `pnpm-workspace.yaml` に `nodeLinker: hoisted` | Metro は仮想ストア配下の推移的依存を解決できず、Expo アプリがバンドルできない |
+
 ## 技術スタック
 
 | 領域 | 技術 |

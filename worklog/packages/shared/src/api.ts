@@ -112,6 +112,8 @@ export interface GridCell {
 export interface GridRow {
   userId: string;
   userName: string;
+  /** 五十音順に並べるための読み。無ければ userName で代替する (F-305) */
+  userNameKana?: string;
   photoUrl?: string;
   cells: GridCell[];
   capturedCount: number;

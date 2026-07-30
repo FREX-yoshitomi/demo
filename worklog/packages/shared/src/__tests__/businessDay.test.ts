@@ -6,6 +6,7 @@ import {
   businessDayRange,
   classifySlotTiming,
   crossesMidnight,
+  currentSlotAt,
   expectedSlotCount,
   fromMinutes,
   listSlotKeys,
@@ -265,6 +266,44 @@ describe("nextSlotAfter", () => {
     const next = nextSlotAfter(jst("2026-07-27T00:30:00"), TZ, NIGHT, 60);
     expect(next?.businessDate).toBe("2026-07-26");
     expect(next?.slotKey).toBe("01:00");
+  });
+});
+
+describe("currentSlotAt", () => {
+  it("直前に始まったスロットを返す", () => {
+    const current = currentSlotAt(jst("2026-07-26T12:40:00"), TZ, DAY, 60);
+    expect(current).toMatchObject({ businessDate: "2026-07-26", slotKey: "12:00" });
+  });
+
+  it("スロット開始ちょうどはそのスロット", () => {
+    expect(currentSlotAt(jst("2026-07-26T13:00:00"), TZ, DAY, 60)?.slotKey).toBe("13:00");
+  });
+
+  it("稼働開始前は null", () => {
+    expect(currentSlotAt(jst("2026-07-26T08:00:00"), TZ, DAY, 60)).toBeNull();
+  });
+
+  it("稼働終了後は最後のスロットを返す（後追い撮影のため）", () => {
+    expect(currentSlotAt(jst("2026-07-26T20:00:00"), TZ, DAY, 60)?.slotKey).toBe("17:00");
+  });
+
+  it("夜勤の日跨ぎでも業務日が正しい", () => {
+    const current = currentSlotAt(jst("2026-07-27T02:30:00"), TZ, NIGHT, 60);
+    expect(current).toMatchObject({ businessDate: "2026-07-26", slotKey: "02:00" });
+  });
+
+  it("端末のローカル時刻ではなくテナントのタイムゾーンで判定する", () => {
+    // 同じ瞬間が UTC では 2026-07-26 03:40、JST では 2026-07-26 12:40
+    const instant = new Date("2026-07-26T03:40:00Z");
+    expect(currentSlotAt(instant, TZ, DAY, 60)).toMatchObject({
+      businessDate: "2026-07-26",
+      slotKey: "12:00",
+    });
+    // UTC で解釈すると業務日も枠も別物になる（＝タイムゾーンを取り違えると壊れる）
+    expect(currentSlotAt(instant, "UTC", DAY, 60)).toMatchObject({
+      businessDate: "2026-07-25",
+      slotKey: "17:00",
+    });
   });
 });
 
