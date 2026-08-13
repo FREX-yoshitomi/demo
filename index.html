@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>武雄高校 同窓会 ｜ 2015年3月卒業 世代</title>
-  <meta name="description" content="佐賀県立武雄高等学校 2015年3月卒業（平成8年度生まれ）世代の同窓会。先生方もお招きします。出欠はこのページからどうぞ。" />
+  <meta name="description" content="佐賀県立武雄高等学校 2015年3月卒業（平成8年度生まれ）世代の同窓会。受付・お支払いはこのページで完結します。" />
 
   <!-- LINE / SNS で共有したときの見え方 -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="武雄高校 同窓会 ｜ 2015年3月卒業 世代" />
-  <meta property="og:description" content="みんな30歳。久しぶりに武雄で集まりませんか？先生方もお招きします。出欠はこのページからどうぞ。" />
+  <meta property="og:description" content="みんな30歳。久しぶりに武雄で集まりませんか？受付はこのページから1分で完了。" />
   <meta name="twitter:card" content="summary_large_image" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,15 +21,23 @@
 
   <!-- ===== ヒーロー ===== -->
   <header class="hero">
-    <!-- メインビジュアル：assets/school.jpg を置くと背景写真になります（無ければ紺のグラデーション） -->
+    <!-- assets/school.jpg を置くと背景写真になります（無ければ紺のグラデーション） -->
     <div class="hero__photo" aria-hidden="true"></div>
     <div class="hero__inner">
       <p class="hero__eyebrow">佐賀県立武雄高等学校</p>
       <h1 class="hero__title">同 窓 会</h1>
       <p class="hero__gen">2015年3月卒業 世代<br /><span>（平成8年度生まれ・早生まれ含む）</span></p>
-      <p class="hero__lead">みんな、30歳。<br />久しぶりに武雄で集まりませんか。</p>
-      <a href="#rsvp" class="btn btn--primary hero__cta">出欠を入力する</a>
-      <p class="hero__note">所要1分・スマホからどうぞ</p>
+
+      <!-- 参加人数カウンター（バックエンドから自動取得） -->
+      <div class="counter" id="counter">
+        <div class="counter__num" id="cntTotal">–</div>
+        <div class="counter__label">現在の参加予定人数</div>
+        <p class="counter__sub" id="cntSub">集計を読み込み中…</p>
+        <div class="counter__classes" id="cntClasses" aria-label="組ごとの参加人数"></div>
+      </div>
+
+      <a href="#rsvp" class="btn btn--primary hero__cta">受付をする（1分）</a>
+      <p class="hero__note">出席・欠席どちらの方もこちらからどうぞ</p>
     </div>
   </header>
 
@@ -39,13 +47,11 @@
       <div class="container">
         <h2 class="section__title">ごあいさつ</h2>
         <p class="lead-text">
-          ご無沙汰しています。武雄高校で同じ時間を過ごした仲間で、同窓会を企画しています。<br />
-          卒業から年月が経ち、それぞれの道を歩んでいる今だからこそ、
-          あの頃の顔ぶれでもう一度集まれたら——そんな思いで声をかけています。
+          ご無沙汰しています。武雄高校で同じ時間を過ごした仲間で、同窓会を企画しています。
+          卒業から年月が経ち、それぞれの道を歩んでいる今だからこそ、あの頃の顔ぶれでもう一度集まれたら——そんな思いで声をかけています。
         </p>
         <p class="lead-text">
-          当時お世話になった<strong>先生方もお招きする</strong>予定です。
-          懐かしい話に花を咲かせましょう。ぜひお気軽にご参加ください。
+          当時お世話になった<strong>先生方もお招きする</strong>予定です。ぜひお気軽にご参加ください。
         </p>
       </div>
     </section>
@@ -57,11 +63,11 @@
         <dl class="details">
           <div class="details__row">
             <dt>対象</dt>
-            <dd>武雄高校 2015年3月卒業 世代<br /><small>平成8年度生まれ（1996年4月〜1997年3月生まれ・早生まれ含む）＋ 当時の先生方</small></dd>
+            <dd>武雄高校 2015年3月卒業 世代（3年1組〜7組）<br /><small>＋ 当時の先生方</small></dd>
           </div>
           <div class="details__row">
             <dt>日程</dt>
-            <dd><span class="tbd">調整中</span><br /><small>候補日はこのページの出欠フォームで希望を伺います</small></dd>
+            <dd><span class="tbd">調整中</span><br /><small>受付フォームで参加しやすい時期を伺い、多い日程で確定します</small></dd>
           </div>
           <div class="details__row">
             <dt>会場</dt>
@@ -69,45 +75,54 @@
           </div>
           <div class="details__row">
             <dt>会費</dt>
-            <dd><span class="tbd">調整中</span><br /><small>決まり次第このページでお知らせします</small></dd>
+            <dd id="feeCell"><span class="tbd">調整中</span><br /><small>決まり次第このページでお知らせします</small></dd>
           </div>
           <div class="details__row">
             <dt>幹事</dt>
             <dd>よしとみ ・ ひろき</dd>
           </div>
         </dl>
-        <p class="details__hint">📌 日程・会場・会費が決まり次第、このページを更新します。ブックマーク推奨！</p>
       </div>
     </section>
 
-    <!-- ===== 出欠フォーム ===== -->
+    <!-- ===== 受付フォーム ===== -->
     <section class="section section--rsvp" id="rsvp">
       <div class="container">
-        <h2 class="section__title">出欠のご連絡</h2>
+        <h2 class="section__title">参加受付</h2>
         <p class="rsvp__intro">
-          現時点での参加意向で大丈夫です（後から変更OK）。<br />
-          日程の希望もこちらで伺えると助かります。
+          組と名前を入れて送信すると受付完了です。<br />
+          学年名簿と自動で照合されるので、後から変更もできます。
         </p>
 
         <form id="rsvpForm" class="form" novalidate>
-          <div class="field">
-            <label for="name">お名前 <span class="req">必須</span></label>
-            <input type="text" id="name" name="name" autocomplete="name" required placeholder="例）武雄 太郎" />
+          <div class="field field--half">
+            <label for="cls">卒業時のクラス <span class="req">必須</span></label>
+            <select id="cls" name="cls" required>
+              <option value="" selected disabled>選択してください</option>
+              <option value="1">3年1組</option>
+              <option value="2">3年2組</option>
+              <option value="3">3年3組</option>
+              <option value="4">3年4組</option>
+              <option value="5">3年5組</option>
+              <option value="6">3年6組</option>
+              <option value="7">3年7組</option>
+            </select>
           </div>
 
           <div class="field">
-            <label for="oldName">旧姓（あれば）</label>
+            <label for="name">お名前（卒業時の姓名） <span class="req">必須</span></label>
+            <input type="text" id="name" name="name" autocomplete="name" required placeholder="例）武雄 太郎" />
+            <p class="field__help">名簿との照合に使います。卒業時のお名前でお願いします。</p>
+          </div>
+
+          <div class="field">
+            <label for="oldName">現在の姓（変わった方のみ）</label>
             <input type="text" id="oldName" name="oldName" placeholder="例）佐賀" />
           </div>
 
-          <div class="field">
-            <label for="grade">卒業時のクラス・部活など（任意）</label>
-            <input type="text" id="grade" name="grade" placeholder="例）3年2組 / 野球部" />
-          </div>
-
           <fieldset class="field field--radio">
-            <legend>現時点の出欠 <span class="req">必須</span></legend>
-            <label class="radio"><input type="radio" name="attendance" value="参加" required /><span>参加したい</span></label>
+            <legend>出欠 <span class="req">必須</span></legend>
+            <label class="radio"><input type="radio" name="attendance" value="参加" required /><span>参加する</span></label>
             <label class="radio"><input type="radio" name="attendance" value="未定" /><span>日程次第で検討</span></label>
             <label class="radio"><input type="radio" name="attendance" value="不参加" /><span>今回は不参加</span></label>
           </fieldset>
@@ -125,13 +140,35 @@
 
           <div class="field">
             <label for="message">ひとことメッセージ（任意）</label>
-            <textarea id="message" name="message" rows="3" placeholder="近況、リクエスト、先生への伝言など何でも"></textarea>
+            <textarea id="message" name="message" rows="3" placeholder="近況、先生への伝言など何でも"></textarea>
           </div>
 
-          <button type="submit" class="btn btn--primary form__submit" id="submitBtn">この内容で送信する</button>
-
+          <button type="submit" class="btn btn--primary form__submit" id="submitBtn">受付を完了する</button>
           <p class="form__status" id="formStatus" role="status" aria-live="polite"></p>
         </form>
+
+        <!-- 受付完了後に表示される支払い案内 -->
+        <div class="paydone" id="payDone" hidden>
+          <h3>✅ 受付が完了しました</h3>
+          <p>参加予定の方は、続けて下の「お支払い」までお願いします。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== お支払い（PayPay） ===== -->
+    <section class="section section--pay" id="pay">
+      <div class="container">
+        <h2 class="section__title">お支払い（PayPay）</h2>
+        <ol class="paysteps">
+          <li><strong>受付フォームを送信</strong>（上のフォーム）</li>
+          <li><strong>PayPayで会費を送金</strong><br />
+            <span id="payLinkArea"><span class="tbd">送金リンクは会費決定後にここに掲載します</span></span>
+          </li>
+          <li><strong>幹事が入金を確認</strong>し、お支払い済みとして記録します</li>
+        </ol>
+        <p class="pay__note">
+          PayPayが使えない方は当日受付での現金払いも可能です。ご不明な点は幹事まで。
+        </p>
       </div>
     </section>
 
@@ -152,7 +189,7 @@
 
   <footer class="footer">
     <p>武雄高校 同窓会 実行委員会</p>
-    <p class="footer__small">いただいた個人情報は本会の連絡のみに使用し、終了後に責任を持って削除します。</p>
+    <p class="footer__small">いただいた個人情報は本会の連絡のみに使用し、終了後に責任を持って削除します。名簿・参加状況の詳細は幹事のみが閲覧します。</p>
     <p class="footer__admin"><a href="admin.html">幹事用ログイン →</a></p>
   </footer>
 
