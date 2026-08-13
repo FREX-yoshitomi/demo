@@ -125,8 +125,23 @@ td.num input { text-align: right; }
 select.st-done { background: var(--green-bg); color: var(--green); font-weight: 700; }
 select.st-prog { background: var(--amber-bg); color: var(--amber); font-weight: 700; }
 select.st-todo { background: var(--gray-bg); color: var(--ink-soft); font-weight: 700; }
+select.st-off  { background: #fbe9e7; color: var(--red); font-weight: 700; }
 select.kind-in  { background: var(--green-bg); color: var(--green); font-weight: 700; }
 select.kind-out { background: #fbe9e7; color: var(--red); font-weight: 700; }
+
+/* 組フィルタのチップ */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.chip {
+  border: 1.5px solid var(--line); background: var(--card); color: var(--ink-soft);
+  font-family: inherit; font-size: 0.8rem; font-weight: 700;
+  padding: 6px 14px; border-radius: 999px; cursor: pointer;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+}
+.chip:hover { border-color: var(--gold); }
+.chip.is-active { background: var(--navy); border-color: var(--navy); color: #fff; }
+
+/* 補足ヒント */
+.hint { font-size: 0.8rem; color: var(--ink-soft); margin: 14px 0 0; }
 
 .del-btn { background: none; border: none; cursor: pointer; color: #bbb; font-size: 1.1rem; padding: 4px 8px; border-radius: 6px; }
 .del-btn:hover { color: var(--red); background: #fbe9e7; }
