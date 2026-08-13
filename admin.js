@@ -1,18 +1,41 @@
 /* ============================================================
- * 武雄高校 同窓会 幹事ダッシュボード
+ * 武雄高校 同窓会 幹事ダッシュボード v2（名簿中心）
  * config.js（APP_CONFIG / apiCall / isConnected）を先に読み込むこと
  * ============================================================ */
 
 // ---------- 状態 ----------
 const state = {
-  key: null,        // 管理パスワード（= APIキー）
-  demo: false,      // バックエンド未接続のデモ表示
-  data: null,       // { rsvp, tasks, checklist, budget } 各 {headers, rows}
-  activeTab: "rsvp",
+  key: null,
+  demo: false,
+  data: null,
+  activeTab: "roster",
+  rosterFilter: "all",
 };
 
-// ---------- 編集可能タブの定義 ----------
+// ---------- 列の色分け ----------
+function attClass(v) {
+  return v === "参加" ? "st-done" : v === "未定" ? "st-prog" : v === "不参加" ? "st-off" : "st-todo";
+}
+function payClass(v) { return v === "済" ? "st-done" : v === "当日現金" ? "st-prog" : "st-todo"; }
+function threeStep(opts) {
+  return (v) => (v === opts[2] ? "st-done" : v === opts[1] ? "st-prog" : "st-todo");
+}
+
+// ---------- 編集可能タブ定義 ----------
 const TABLES = {
+  roster: {
+    label: "名簿・参加状況",
+    columns: [
+      { key: "組", type: "select", options: ["1", "2", "3", "4", "5", "6", "7"], classFor: () => "", w: "64px" },
+      { key: "名前", type: "text", w: "130px" },
+      { key: "旧姓", type: "text", w: "80px" },
+      { key: "出欠", type: "select", options: ["未回答", "参加", "未定", "不参加"], classFor: attClass, w: "104px" },
+      { key: "支払い", type: "select", options: ["未", "済", "当日現金"], classFor: payClass, w: "104px" },
+      { key: "連絡先", type: "text" },
+      { key: "メモ", type: "text" },
+    ],
+    addDefault: { 組: "1", 名前: "", 旧姓: "", 出欠: "未回答", 支払い: "未", 連絡先: "", メモ: "" },
+  },
   tasks: {
     label: "スケジュール / タスク",
     columns: [
@@ -20,7 +43,7 @@ const TABLES = {
       { key: "タスク", type: "text" },
       { key: "担当", type: "text", w: "120px" },
       { key: "期限目安", type: "text", w: "92px" },
-      { key: "状態", type: "status", options: ["未着手", "進行中", "完了"], w: "108px" },
+      { key: "状態", type: "select", options: ["未着手", "進行中", "完了"], classFor: threeStep(["未着手", "進行中", "完了"]), w: "108px" },
       { key: "メモ", type: "text" },
     ],
     statusKey: "状態", done: "完了",
@@ -33,7 +56,7 @@ const TABLES = {
       { key: "品目", type: "text" },
       { key: "数量", type: "text", w: "80px" },
       { key: "担当", type: "text", w: "110px" },
-      { key: "状態", type: "status", options: ["未手配", "手配中", "完了"], w: "104px" },
+      { key: "状態", type: "select", options: ["未手配", "手配中", "完了"], classFor: threeStep(["未手配", "手配中", "完了"]), w: "104px" },
       { key: "メモ", type: "text" },
     ],
     statusKey: "状態", done: "完了",
@@ -42,7 +65,7 @@ const TABLES = {
   budget: {
     label: "集金・予算",
     columns: [
-      { key: "区分", type: "kind", options: ["収入", "支出"], w: "84px" },
+      { key: "区分", type: "select", options: ["収入", "支出"], classFor: (v) => (v === "収入" ? "st-done" : "st-off"), w: "84px" },
       { key: "項目", type: "text" },
       { key: "予定額", type: "num", w: "110px" },
       { key: "実績額", type: "num", w: "110px" },
@@ -53,57 +76,6 @@ const TABLES = {
 };
 
 // ---------- デモ用データ ----------
-const DEMO_DATA = {
-  rsvp: {
-    headers: ["受信日時", "お名前", "旧姓", "クラス・部活", "出欠", "連絡先", "希望の曜日・時期", "メッセージ"],
-    rows: [
-      { _row: 2, 受信日時: "2026-06-01 21:03", お名前: "武雄 太郎", 旧姓: "", "クラス・部活": "3年2組/野球部", 出欠: "参加", 連絡先: "LINE: takeo_taro", "希望の曜日・時期": "土曜の夜", メッセージ: "楽しみ！" },
-      { _row: 3, 受信日時: "2026-06-02 08:15", お名前: "佐賀 花子", 旧姓: "唐津", "クラス・部活": "3年1組/吹奏楽", 出欠: "未定", 連絡先: "hanako@example.com", "希望の曜日・時期": "年末年始", メッセージ: "日程次第で参加したいです" },
-      { _row: 4, 受信日時: "2026-06-02 19:40", お名前: "山田 健", 旧姓: "", "クラス・部活": "3年4組/サッカー部", 出欠: "参加", 連絡先: "090-xxxx-xxxx", "希望の曜日・時期": "お盆", メッセージ: "" },
-    ],
-  },
-  tasks: { headers: ["ID", "カテゴリ", "タスク", "担当", "期限目安", "状態", "メモ"], rows: seedRows([
-    [1, "立ち上げ", "幹事ミーティング・役割分担を決める", "よしとみ/ひろき", "D-4ヶ月", "完了", ""],
-    [2, "立ち上げ", "候補日を2〜3個決める", "よしとみ", "D-4ヶ月", "進行中", "出欠フォームで投票"],
-    [3, "集客", "学年LINEグループ作成・告知", "ひろき", "D-4ヶ月", "未着手", ""],
-    [4, "集客", "先生方の連絡先を集める", "ひろき", "D-3.5ヶ月", "未着手", ""],
-    [5, "日程", "出欠フォームで日程投票→確定", "よしとみ", "D-3ヶ月", "未着手", ""],
-    [6, "会場", "候補店をリストアップ（30〜50名）", "よしとみ", "D-3ヶ月", "未着手", "武雄市内"],
-    [7, "費用", "会費を決定する", "よしとみ", "D-2ヶ月", "未着手", "先生分の扱いも"],
-    [8, "会場", "会場を仮予約", "よしとみ", "D-2ヶ月", "未着手", ""],
-    [9, "先生", "先生方へ正式に案内・オファー", "ひろき", "D-2ヶ月", "未着手", ""],
-    [10, "出欠", "出欠を締切り、人数を確定", "よしとみ", "D-1ヶ月", "未着手", ""],
-    [11, "会場", "会場を本予約・席次を決める", "よしとみ", "D-3週", "未着手", ""],
-    [12, "集金", "集金を開始", "よしとみ", "D-3週", "未着手", ""],
-    [13, "当日", "進行表・名簿・受付準備", "よしとみ", "D-1週", "未着手", ""],
-    [14, "当日", "参加者へリマインド連絡", "ひろき", "D-3日", "未着手", ""],
-    [15, "事後", "写真共有・お礼・会計報告", "よしとみ", "D+1週", "未着手", ""],
-  ], ["ID", "カテゴリ", "タスク", "担当", "期限目安", "状態", "メモ"]) },
-  checklist: { headers: ["ID", "カテゴリ", "品目", "数量", "担当", "状態", "メモ"], rows: seedRows([
-    [1, "受付", "名簿・受付チェックリスト", "1部", "よしとみ", "未手配", ""],
-    [2, "受付", "釣り銭・集金袋", "1式", "よしとみ", "未手配", ""],
-    [3, "受付", "名札・油性ペン", "人数分", "よしとみ", "未手配", ""],
-    [4, "受付", "領収書・電卓", "1式", "よしとみ", "未手配", ""],
-    [5, "進行", "進行表・台本", "数部", "よしとみ", "未手配", ""],
-    [6, "進行", "マイク・音響（会場備品を確認）", "-", "よしとみ", "未手配", ""],
-    [7, "演出", "当時の写真・卒業アルバム", "-", "ひろき", "未手配", ""],
-    [8, "演出", "スライド/プロジェクター（要確認）", "1式", "よしとみ", "未手配", ""],
-    [9, "演出", "BGMプレイリスト", "1式", "ひろき", "未手配", ""],
-    [10, "記念", "集合写真用カメラ・三脚", "1式", "ひろき", "未手配", ""],
-    [11, "先生", "記念品・花束", "先生数分", "ひろき", "未手配", ""],
-    [12, "二次会", "二次会の店の目処", "1件", "ひろき", "未手配", ""],
-    [13, "装飾", "横断幕・装飾（任意）", "一式", "-", "未手配", ""],
-  ], ["ID", "カテゴリ", "品目", "数量", "担当", "状態", "メモ"]) },
-  budget: { headers: ["ID", "区分", "項目", "予定額", "実績額", "メモ"], rows: seedRows([
-    [1, "収入", "会費（一般）", 0, 0, "参加人数 × 会費"],
-    [2, "収入", "会費（先生）", 0, 0, "招待 or 割引"],
-    [3, "支出", "会場・飲食費", 0, 0, "@5,000 × 人数 を想定"],
-    [4, "支出", "先生招待分の補助", 0, 0, ""],
-    [5, "支出", "記念品・花束", 0, 0, ""],
-    [6, "支出", "装飾・備品", 0, 0, ""],
-    [7, "支出", "予備費", 0, 0, ""],
-  ], ["ID", "区分", "項目", "予定額", "実績額", "メモ"]) },
-};
 function seedRows(arr, headers) {
   return arr.map((r, i) => {
     const o = { _row: i + 2 };
@@ -111,6 +83,48 @@ function seedRows(arr, headers) {
     return o;
   });
 }
+const ROSTER_H = ["ID", "組", "名前", "旧姓", "出欠", "支払い", "連絡先", "メモ", "更新日時"];
+const LOG_H = ["受信日時", "組", "名前", "旧姓", "出欠", "連絡先", "希望の曜日・時期", "メッセージ", "照合"];
+const DEMO_DATA = {
+  roster: { headers: ROSTER_H, rows: seedRows([
+    [1, "1", "相原 大輝", "", "参加", "済", "LINE: aihara", "", "6/10"],
+    [2, "1", "石井 さくら", "", "未定", "未", "", "サンプル", ""],
+    [3, "1", "上田 健太", "", "未回答", "未", "", "サンプル", ""],
+    [4, "2", "木村 拓海", "", "参加", "未", "090-xxxx", "", "6/11"],
+    [5, "2", "久保 陽菜", "田中", "参加", "済", "kubo@example.com", "", "6/11"],
+    [6, "3", "白石 大和", "", "不参加", "未", "", "遠方", "6/12"],
+    [7, "4", "寺田 湊", "", "参加", "当日現金", "LINE: terada", "", "6/12"],
+    [8, "5", "東 剛志", "", "未回答", "未", "", "サンプル", ""],
+    [9, "6", "三浦 洋平", "", "参加", "未", "", "", "6/13"],
+    [10, "7", "和田 潤", "", "未定", "未", "", "", "6/13"],
+  ], ROSTER_H) },
+  log: { headers: LOG_H, rows: seedRows([
+    ["6/10 21:03", "1", "相原 大輝", "", "参加", "LINE: aihara", "土曜の夜", "楽しみ！", "名簿と一致"],
+    ["6/11 08:15", "2", "久保 陽菜", "田中", "参加", "kubo@example.com", "年末年始", "", "名簿と一致"],
+    ["6/12 19:40", "4", "寺山 湊", "", "参加", "LINE: terada", "お盆", "", "名簿外→新規追加"],
+  ], LOG_H) },
+  tasks: { headers: ["ID", "カテゴリ", "タスク", "担当", "期限目安", "状態", "メモ"], rows: seedRows([
+    [1, "立ち上げ", "幹事ミーティング・役割分担を決める", "よしとみ/ひろき", "D-4ヶ月", "完了", ""],
+    [2, "立ち上げ", "候補日を2〜3個決める", "よしとみ", "D-4ヶ月", "進行中", ""],
+    [3, "集客", "学年LINEグループ作成・告知", "ひろき", "D-4ヶ月", "未着手", ""],
+    [4, "名簿", "実名簿（3年1〜7組）をシートに投入", "よしとみ", "D-3.5ヶ月", "未着手", "サンプル行を差し替え"],
+    [5, "費用", "会費を決定・PayPayリンクを設定", "よしとみ", "D-2ヶ月", "未着手", ""],
+    [6, "集金", "PayPay入金を照合し支払い状況を更新", "よしとみ", "D-3週〜", "未着手", ""],
+  ], ["ID", "カテゴリ", "タスク", "担当", "期限目安", "状態", "メモ"]) },
+  checklist: { headers: ["ID", "カテゴリ", "品目", "数量", "担当", "状態", "メモ"], rows: seedRows([
+    [1, "受付", "名簿・受付チェックリスト", "1部", "よしとみ", "未手配", ""],
+    [2, "受付", "釣り銭・集金袋（当日現金者用）", "1式", "よしとみ", "未手配", ""],
+    [3, "演出", "当時の写真・卒業アルバム", "-", "ひろき", "未手配", ""],
+    [4, "先生", "記念品・花束", "先生数分", "ひろき", "未手配", ""],
+  ], ["ID", "カテゴリ", "品目", "数量", "担当", "状態", "メモ"]) },
+  budget: { headers: ["ID", "区分", "項目", "予定額", "実績額", "メモ"], rows: seedRows([
+    [1, "収入", "会費（PayPay・一般）", 150000, 15000, "参加人数 × 会費"],
+    [2, "収入", "会費（当日現金）", 25000, 0, ""],
+    [3, "支出", "会場・飲食費", 150000, 0, "@5,000 × 人数"],
+    [4, "支出", "記念品・花束", 15000, 0, ""],
+    [5, "支出", "予備費", 10000, 0, ""],
+  ], ["ID", "区分", "項目", "予定額", "実績額", "メモ"]) },
+};
 
 // ---------- DOM ----------
 const $ = (id) => document.getElementById(id);
@@ -119,9 +133,7 @@ const loginView = $("loginView"), dashView = $("dashView");
 // ---------- 起動 ----------
 init();
 function init() {
-  if (!isConnected()) {
-    $("demoNote").hidden = false;
-  }
+  if (!isConnected()) $("demoNote").hidden = false;
   const saved = sessionStorage.getItem("adminKey");
   if (saved && isConnected()) {
     state.key = saved;
@@ -138,13 +150,10 @@ function bindEvents() {
   $("settingsBtn").addEventListener("click", () => ($("settingsModal").hidden = false));
   $("settingsClose").addEventListener("click", () => ($("settingsModal").hidden = true));
   $("pwForm").addEventListener("submit", onChangePassword);
-
   $("tabs").addEventListener("click", (e) => {
     const btn = e.target.closest(".tab");
     if (btn) switchTab(btn.dataset.tab);
   });
-
-  // テーブルのインライン編集・追加・削除（イベント委譲）
   const content = document.querySelector(".content");
   content.addEventListener("change", onFieldChange);
   content.addEventListener("click", onContentClick);
@@ -159,7 +168,6 @@ async function onLogin(e) {
   status.textContent = "";
   if (!pw) { status.textContent = "パスワードを入力してください。"; return; }
   if (!isConnected()) { status.textContent = "未接続です。下の「デモを見る」で確認できます。"; return; }
-
   $("loginBtn").disabled = true;
   try {
     await apiCall("login", { password: pw });
@@ -167,7 +175,7 @@ async function onLogin(e) {
     sessionStorage.setItem("adminKey", pw);
     await enterDashboard(false);
   } catch (err) {
-    status.textContent = err.message === "ENDPOINT_NOT_SET" ? "未接続です。" : "パスワードが違います。";
+    status.textContent = "パスワードが違います。";
   } finally {
     $("loginBtn").disabled = false;
   }
@@ -180,7 +188,7 @@ function logout() {
   $("loginPassword").value = "";
 }
 
-// ---------- ダッシュボード読み込み ----------
+// ---------- 読み込み ----------
 async function enterDashboard(demo) {
   state.demo = demo;
   if (demo) {
@@ -206,58 +214,84 @@ function switchTab(tab) {
 
 // ---------- レンダリング ----------
 function renderPanel(tab) {
-  if (tab === "rsvp") return renderRsvp();
+  if (tab === "roster") return renderRoster();
+  if (tab === "log") return renderLog();
   if (tab === "budget") return renderBudget();
   return renderEditable(tab);
 }
 
-function renderRsvp() {
-  const { rows } = state.data.rsvp;
-  const count = (v) => rows.filter((r) => r["出欠"] === v).length;
-  const sum = { 参加: count("参加"), 未定: count("未定"), 不参加: count("不参加") };
-  const panel = $("panel-rsvp");
-  panel.innerHTML = `
+/** 名簿・参加状況 */
+function renderRoster() {
+  const rows = state.data.roster.rows;
+  const cnt = (v) => rows.filter((r) => r["出欠"] === v).length;
+  const attend = cnt("参加");
+  const paid = rows.filter((r) => r["出欠"] === "参加" && r["支払い"] === "済").length;
+  const byClass = {};
+  rows.forEach((r) => { const c = String(r["組"] || "?"); (byClass[c] = byClass[c] || { t: 0, a: 0 }); byClass[c].t++; if (r["出欠"] === "参加") byClass[c].a++; });
+
+  const chips = ["all", "1", "2", "3", "4", "5", "6", "7"].map((c) => {
+    const label = c === "all" ? `全体 ${rows.length}` : `${c}組 ${byClass[c] ? byClass[c].a : 0}/${byClass[c] ? byClass[c].t : 0}`;
+    return `<button class="chip${state.rosterFilter === c ? " is-active" : ""}" data-filter="${c}">${label}</button>`;
+  }).join("");
+
+  const visible = rows.filter((r) => state.rosterFilter === "all" || String(r["組"]) === state.rosterFilter);
+  const cfg = TABLES.roster;
+  const payPct = attend ? Math.round((paid / attend) * 100) : 0;
+
+  $("panel-roster").innerHTML = `
     <div class="panel__head">
-      <h2 class="panel__title">出欠一覧・集計</h2>
+      <h2 class="panel__title">名簿・参加状況</h2>
       <div class="panel__actions">
-        <input class="search" data-search="rsvp" placeholder="名前・連絡先で検索" />
-        <button class="btn btn--ghost" data-csv="1">CSV書き出し</button>
+        <input class="search" data-search="roster" placeholder="名前で検索" />
+        <button class="btn btn--ghost" data-csv="roster">CSV書き出し</button>
       </div>
     </div>
     <div class="cards">
-      <div class="card card--green"><div class="card__num">${sum.参加}</div><div class="card__label">参加</div></div>
-      <div class="card card--amber"><div class="card__num">${sum.未定}</div><div class="card__label">日程次第</div></div>
-      <div class="card"><div class="card__num">${sum.不参加}</div><div class="card__label">不参加</div></div>
-      <div class="card"><div class="card__num">${rows.length}</div><div class="card__label">回答総数</div></div>
+      <div class="card card--green"><div class="card__num">${attend}</div><div class="card__label">参加</div></div>
+      <div class="card card--amber"><div class="card__num">${cnt("未定")}</div><div class="card__label">未定</div></div>
+      <div class="card"><div class="card__num">${cnt("不参加")}</div><div class="card__label">不参加</div></div>
+      <div class="card"><div class="card__num">${cnt("未回答")}</div><div class="card__label">未回答</div></div>
+      <div class="card ${paid === attend && attend > 0 ? "card--green" : ""}"><div class="card__num">${paid}/${attend}</div><div class="card__label">支払い済み</div></div>
     </div>
+    <div class="progress">
+      <div class="progress__label"><span>集金の進捗（参加者のうち支払い済み）</span><span>${payPct}%</span></div>
+      <div class="progress__track"><div class="progress__fill" style="width:${payPct}%"></div></div>
+    </div>
+    <div class="chips">${chips}</div>
     <div class="table-wrap">
-      <table id="rsvpTable">
-        <thead><tr>
-          <th>受信</th><th>お名前</th><th>旧姓</th><th>クラス・部活</th><th>出欠</th><th>連絡先</th><th>希望時期</th><th>メッセージ</th>
-        </tr></thead>
-        <tbody>${rows.length ? rows.map(rsvpRow).join("") : ""}</tbody>
+      <table id="rosterTable">
+        <thead><tr>${cfg.columns.map((c) => `<th${c.w ? ` style="width:${c.w}"` : ""}>${c.key}</th>`).join("")}<th></th></tr></thead>
+        <tbody>${visible.map((r) => editRow("roster", cfg, r)).join("")}</tbody>
       </table>
-      ${rows.length ? "" : '<p class="empty">まだ回答がありません。</p>'}
-    </div>`;
-}
-function rsvpRow(r) {
-  const at = r["出欠"];
-  const cls = at === "参加" ? "kind-in" : at === "不参加" ? "kind-out" : "";
-  return `<tr data-name="${esc(r["お名前"])} ${esc(r["連絡先"])}">
-    <td>${esc(fmtDate(r["受信日時"]))}</td><td>${esc(r["お名前"])}</td><td>${esc(r["旧姓"])}</td>
-    <td>${esc(r["クラス・部活"])}</td>
-    <td><span class="cat-chip ${cls}">${esc(at)}</span></td>
-    <td>${esc(r["連絡先"])}</td><td>${esc(r["希望の曜日・時期"])}</td><td>${esc(r["メッセージ"])}</td>
-  </tr>`;
+      ${visible.length ? "" : '<p class="empty">該当する行がありません。</p>'}
+    </div>
+    <div class="addbar"><button class="btn btn--ghost" data-add="roster">＋ 名簿に追加</button></div>
+    <p class="hint">💡 実名簿への差し替え：スプレッドシートの「名簿」タブでサンプル行を削除し、組・名前を貼り付けてください（IDは連番）。</p>`;
 }
 
+/** 受付ログ（読み取り専用） */
+function renderLog() {
+  const { headers, rows } = state.data.log;
+  const list = [...rows].reverse();
+  $("panel-log").innerHTML = `
+    <div class="panel__head"><h2 class="panel__title">受付ログ（フォーム送信の履歴）</h2></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead>
+        <tbody>${list.map((r) => `<tr>${headers.map((h) => `<td>${esc(h === "受信日時" ? fmtDate(r[h]) : r[h])}</td>`).join("")}</tr>`).join("")}</tbody>
+      </table>
+      ${rows.length ? "" : '<p class="empty">まだ受付がありません。</p>'}
+    </div>
+    <p class="hint">「名簿外→新規追加」の行は、名簿タブで正しい行と統合（重複削除）してください。</p>`;
+}
+
+/** タスク・準備物 共通 */
 function renderEditable(tab) {
   const cfg = TABLES[tab];
-  const { rows } = state.data[tab];
-  const panel = $("panel-" + tab);
+  const rows = state.data[tab].rows;
   const done = rows.filter((r) => r[cfg.statusKey] === cfg.done).length;
   const pct = rows.length ? Math.round((done / rows.length) * 100) : 0;
-  panel.innerHTML = `
+  $("panel-" + tab).innerHTML = `
     <div class="panel__head"><h2 class="panel__title">${cfg.label}</h2></div>
     <div class="progress">
       <div class="progress__label"><span>進捗</span><span>${done} / ${rows.length} 完了（${pct}%）</span></div>
@@ -272,45 +306,51 @@ function renderEditable(tab) {
     <div class="addbar"><button class="btn btn--ghost" data-add="${tab}">＋ 行を追加</button></div>`;
 }
 
+/** 集金・予算 */
+function renderBudget() {
+  const cfg = TABLES.budget;
+  const rows = state.data.budget.rows;
+  const n = (v) => Number(v) || 0;
+  const sum = (kind, key) => rows.filter((r) => r["区分"] === kind).reduce((s, r) => s + n(r[key]), 0);
+  const planNet = sum("収入", "予定額") - sum("支出", "予定額");
+  const actNet = sum("収入", "実績額") - sum("支出", "実績額");
+  $("panel-budget").innerHTML = `
+    <div class="panel__head"><h2 class="panel__title">${cfg.label}</h2></div>
+    <div class="cards">
+      <div class="card card--green"><div class="card__num">¥${fmtYen(sum("収入", "予定額"))}</div><div class="card__label">収入（予定）</div></div>
+      <div class="card"><div class="card__num">¥${fmtYen(sum("支出", "予定額"))}</div><div class="card__label">支出（予定）</div></div>
+      <div class="card ${planNet >= 0 ? "card--green" : "card--amber"}"><div class="card__num">¥${fmtYen(planNet)}</div><div class="card__label">収支（予定）</div></div>
+      <div class="card"><div class="card__num">¥${fmtYen(actNet)}</div><div class="card__label">収支（実績）</div></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>${cfg.columns.map((c) => `<th${c.w ? ` style="width:${c.w}"` : ""}>${c.key}</th>`).join("")}<th></th></tr></thead>
+        <tbody>${rows.map((r) => editRow("budget", cfg, r)).join("")}</tbody>
+      </table>
+    </div>
+    <div class="addbar"><button class="btn btn--ghost" data-add="budget">＋ 行を追加</button></div>
+    <p class="hint">💡 集金の実績は名簿タブの「支払い済み」人数 × 会費 が目安になります。</p>`;
+}
+
+// ---------- 行・セル生成 ----------
 function editRow(tab, cfg, r) {
   const cells = cfg.columns.map((c) => {
     const v = r[c.key] ?? "";
     return `<td${c.type === "num" ? ' class="num"' : ""}>${field(tab, c, r.ID, v)}</td>`;
   }).join("");
-  return `<tr>${cells}<td><button class="del-btn" data-del="${tab}" data-id="${r.ID}" title="削除">×</button></td></tr>`;
+  const nameAttr = tab === "roster" ? ` data-name="${esc(String(r["名前"] || "") + String(r["旧姓"] || ""))}"` : "";
+  return `<tr${nameAttr}>${cells}<td><button class="del-btn" data-del="${tab}" data-id="${r.ID}" title="削除">×</button></td></tr>`;
 }
 
 function field(tab, c, id, v) {
   const attrs = `data-id="${id}" data-tab="${tab}" data-key="${esc(c.key)}"`;
-  if (c.type === "status") {
-    return `<select ${attrs} class="${statusClass(c.options, v)}">${optionList(c.options, v)}</select>`;
+  if (c.type === "select") {
+    const cls = c.classFor ? c.classFor(String(v)) : "";
+    const opts = c.options.map((o) => `<option ${String(o) === String(v) ? "selected" : ""}>${o}</option>`).join("");
+    return `<select ${attrs} class="${cls}">${opts}</select>`;
   }
-  if (c.type === "kind") {
-    return `<select ${attrs} class="${v === "収入" ? "kind-in" : "kind-out"}">${optionList(c.options, v)}</select>`;
-  }
-  if (c.type === "num") {
-    return `<input ${attrs} type="number" value="${esc(v)}" />`;
-  }
+  if (c.type === "num") return `<input ${attrs} type="number" value="${esc(v)}" />`;
   return `<input ${attrs} type="text" value="${esc(v)}" />`;
-}
-
-function renderBudget() {
-  renderEditable("budget");
-  const rows = state.data.budget.rows;
-  const n = (v) => Number(v) || 0;
-  const income = rows.filter((r) => r["区分"] === "収入");
-  const expense = rows.filter((r) => r["区分"] === "支出");
-  const sumP = (a) => a.reduce((s, r) => s + n(r["予定額"]), 0);
-  const sumA = (a) => a.reduce((s, r) => s + n(r["実績額"]), 0);
-  const cards = `
-    <div class="cards">
-      <div class="card card--green"><div class="card__num">¥${fmtYen(sumP(income))}</div><div class="card__label">収入（予定）</div></div>
-      <div class="card"><div class="card__num">¥${fmtYen(sumP(expense))}</div><div class="card__label">支出（予定）</div></div>
-      <div class="card ${sumP(income) - sumP(expense) >= 0 ? "card--green" : "card--amber"}"><div class="card__num">¥${fmtYen(sumP(income) - sumP(expense))}</div><div class="card__label">収支（予定）</div></div>
-      <div class="card"><div class="card__num">¥${fmtYen(sumA(income) - sumA(expense))}</div><div class="card__label">収支（実績）</div></div>
-    </div>`;
-  const head = $("panel-budget").querySelector(".panel__head");
-  head.insertAdjacentHTML("afterend", cards);
 }
 
 // ---------- 編集イベント ----------
@@ -322,14 +362,13 @@ async function onFieldChange(e) {
   const row = state.data[tab].rows.find((r) => String(r.ID) === String(id));
   if (row) row[key] = value;
 
-  // 見た目の即時反映
   if (el.tagName === "SELECT") {
-    const cfg = TABLES[tab];
-    if (key === "区分") el.className = value === "収入" ? "kind-in" : "kind-out";
-    else if (cfg) el.className = statusClass(cfg.columns.find((c) => c.key === key).options, value);
+    const col = TABLES[tab].columns.find((c) => c.key === key);
+    if (col && col.classFor) el.className = col.classFor(value);
   }
-  if (tab === "budget") refreshBudgetSummary();
-  if (tab !== "budget" && TABLES[tab].statusKey === key) refreshProgress(tab);
+  if (tab === "roster" && (key === "出欠" || key === "支払い" || key === "組")) renderRoster();
+  if (tab === "budget" && (key === "予定額" || key === "実績額" || key === "区分")) renderBudget();
+  if (TABLES[tab] && TABLES[tab].statusKey === key) refreshProgress(tab);
 
   await persist("updateRow", { tab, id: Number(id), values: { [key]: value } });
 }
@@ -341,22 +380,23 @@ async function onContentClick(e) {
   if (del) return deleteRow(del.dataset.del, del.dataset.id);
   const csv = e.target.closest("[data-csv]");
   if (csv) return exportCsv();
+  const chip = e.target.closest("[data-filter]");
+  if (chip) { state.rosterFilter = chip.dataset.filter; renderRoster(); }
 }
 
 function onSearchInput(e) {
   const s = e.target.closest("[data-search]");
   if (!s) return;
-  const q = s.value.trim().toLowerCase();
-  document.querySelectorAll("#rsvpTable tbody tr").forEach((tr) => {
-    tr.style.display = (tr.dataset.name || "").toLowerCase().includes(q) ? "" : "none";
+  const q = s.value.trim().toLowerCase().replace(/[\s　]/g, "");
+  document.querySelectorAll("#rosterTable tbody tr").forEach((tr) => {
+    tr.style.display = (tr.dataset.name || "").toLowerCase().replace(/[\s　]/g, "").includes(q) ? "" : "none";
   });
 }
 
 async function addRow(tab) {
   const cfg = TABLES[tab];
-  const id = nextLocalId(tab);
-  const row = { _row: 0, ID: id, ...JSON.parse(JSON.stringify(cfg.addDefault)) };
-  state.data[tab].rows.push(row);
+  const id = state.data[tab].rows.reduce((m, r) => Math.max(m, Number(r.ID) || 0), 0) + 1;
+  state.data[tab].rows.push({ _row: 0, ID: id, ...JSON.parse(JSON.stringify(cfg.addDefault)) });
   renderPanel(tab);
   await persist("addRow", { tab, values: { ID: id, ...cfg.addDefault } });
 }
@@ -368,7 +408,6 @@ async function deleteRow(tab, id) {
   await persist("deleteRow", { tab, id: Number(id) });
 }
 
-/** バックエンドへ反映（デモ時は何もしない） */
 async function persist(action, payload) {
   if (state.demo) return;
   try {
@@ -378,25 +417,17 @@ async function persist(action, payload) {
   }
 }
 
-function nextLocalId(tab) {
-  return state.data[tab].rows.reduce((m, r) => Math.max(m, Number(r.ID) || 0), 0) + 1;
-}
-
-// ---------- 軽量更新（テーブルを作り直さず一部だけ） ----------
+// ---------- 部分更新 ----------
 function refreshProgress(tab) {
   const cfg = TABLES[tab];
   const rows = state.data[tab].rows;
   const done = rows.filter((r) => r[cfg.statusKey] === cfg.done).length;
   const pct = rows.length ? Math.round((done / rows.length) * 100) : 0;
   const panel = $("panel-" + tab);
-  panel.querySelector(".progress__label span:last-child").textContent = `${done} / ${rows.length} 完了（${pct}%）`;
-  panel.querySelector(".progress__fill").style.width = pct + "%";
-}
-function refreshBudgetSummary() {
-  const panel = $("panel-budget");
-  const cards = panel.querySelector(".cards");
-  if (cards) cards.remove();
-  renderBudget(); // 再描画で更新（フォーカスは数値確定後なので許容）
+  const label = panel.querySelector(".progress__label span:last-child");
+  if (label) label.textContent = `${done} / ${rows.length} 完了（${pct}%）`;
+  const fill = panel.querySelector(".progress__fill");
+  if (fill) fill.style.width = pct + "%";
 }
 
 // ---------- パスワード変更 ----------
@@ -419,16 +450,15 @@ async function onChangePassword(e) {
   }
 }
 
-// ---------- CSV ----------
+// ---------- CSV（名簿） ----------
 function exportCsv() {
-  const { headers, rows } = state.data.rsvp;
-  const cols = headers;
-  const lines = [cols.join(",")];
-  rows.forEach((r) => lines.push(cols.map((h) => csvCell(r[h])).join(",")));
+  const { headers, rows } = state.data.roster;
+  const lines = [headers.join(",")];
+  rows.forEach((r) => lines.push(headers.map((h) => csvCell(r[h])).join(",")));
   const blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url; a.download = "同窓会_出欠.csv";
+  a.href = url; a.download = "同窓会_名簿.csv";
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -438,14 +468,6 @@ function csvCell(v) {
 }
 
 // ---------- ユーティリティ ----------
-function optionList(options, v) {
-  return options.map((o) => `<option ${o === v ? "selected" : ""}>${o}</option>`).join("");
-}
-function statusClass(options, v) {
-  if (v === options[options.length - 1]) return "st-done";
-  if (v === options[0]) return "st-todo";
-  return "st-prog";
-}
 function esc(v) {
   return String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 }
