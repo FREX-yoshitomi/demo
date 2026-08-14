@@ -22,8 +22,8 @@
 | M4 | サムネイルグリッド（FlashList・分割数切替・空きコマ） | 完了 |
 | M5 | オフラインキュー・再送・遅延フラグ | 完了 |
 | M6 | 通知（Scheduler → Tasks → FCM・ばらつき・再送・休日スキップ） | 完了 |
-| M8 | capture-delete と Vlog 再生成の伝播（F-9xx） | 完了（再生成の実行は M7 待ち） |
-| M7 | vlog-generator（FFmpeg xstack） | 未着手 |
+| M7 | vlog-generator（FFmpeg xstack・ページ送り・時刻焼き込み） | 完了 |
+| M8 | capture-delete と Vlog 再生成の伝播（F-9xx） | 完了 |
 | M9 | report-generator（AI日報）＋日報画面 | 未着手 |
 | M10 | 勤怠（明示打刻・CSV・修正申請） | 一部（撮影からの出退勤候補のみ） |
 | M11 | 管理Web `/admin` | 未着手 |
@@ -31,7 +31,8 @@
 | M13 | E2E・負荷・受け入れ基準の消化 | 未着手 |
 
 その他の未着手：ESLint の導入（CI は型チェックとテストのみ）、`admin-*` / `ops-*` / `report-*` /
-`attendance-*` の callable（設計書 5.3〜5.6）。
+`attendance-*` の callable（設計書 5.3〜5.6）、Vlog の手動書き出しと共有リンク (F-310, F-312)、
+daily-aggregator（撮影率の日次集計）。
 
 ### テスト
 
@@ -42,7 +43,10 @@
 | Functions 統合（エミュレータ） | 46 | 初回ログイン一式、撮影の縦串、削除の伝播、冪等性 |
 | セキュリティルール | 85 | テナント越境（全コレクション）、テナント内の閲覧範囲、`/ops` 遮断、Storage 越境 |
 | アプリ | 35 | アップロードキューの再送方針、グリッド組み立て |
-| **合計** | **288** | |
+| Vlog生成（純ロジック） | 87 | xstack レイアウト、ページ分割、コマの割り当て、再生成判定、分担 |
+| Vlog生成（実 FFmpeg） | 4 | 実際に mp4 を生成して解像度・尺・無音を検証 |
+| Vlog生成（エミュレータ＋FFmpeg） | 8 | ジョブ全体、冪等性、削除→再生成 (F-905) |
+| **合計** | **387** | |
 
 ---
 
@@ -53,12 +57,13 @@ worklog/
 ├─ packages/shared/    型・定数・zodスキーマ・業務日ロジック（全層で共有）
 ├─ functions/          Cloud Functions（callable / Storageトリガ / スケジューラ）
 ├─ app/                Expo モバイルアプリ（Development Build 前提）
+├─ jobs/vlog-generator/ 日次Vlog生成（Cloud Run Jobs / FFmpeg）
 ├─ firebase/           firestore.rules / storage.rules / 分離テスト
 ├─ scripts/seed.ts     開発用シードデータ（2テナント×3部署×10人）
 └─ docs/               要件定義書・システム設計書・セットアップ手順
 ```
 
-`web/`（管理Web）と `jobs/`（Cloud Run Jobs）は未作成。
+`web/`（管理Web）と `jobs/report-generator/`（AI日報）は未作成。
 `pnpm-workspace.yaml` には登録済みなので、ディレクトリを作れば認識される。
 
 ---
@@ -97,8 +102,17 @@ pnpm seed                  # 2テナント×3部署×10人＋直近3営業日の
 ```bash
 pnpm test                             # 全パッケージのユニットテスト
 pnpm test:rules                       # テナント分離テスト（エミュレータ起動込み）
-pnpm --filter @worklog/functions test:emulator   # Functions 統合テスト
+pnpm --filter @worklog/functions test:emulator        # Functions 統合テスト
+pnpm --filter @worklog/vlog-generator test:ffmpeg     # 実 FFmpeg で mp4 を生成
+pnpm --filter @worklog/vlog-generator test:emulator   # Vlog生成ジョブ全体
 pnpm -r typecheck
+```
+
+Vlog 生成のテストには **drawtext を含む FFmpeg と CJK フォント**が要る
+（`ffmpeg-static` には drawtext が入っていない）。
+
+```bash
+sudo apt-get install -y ffmpeg fonts-noto-cjk
 ```
 
 **セキュリティルールを変更したら必ず `pnpm test:rules` を通すこと。**
@@ -138,6 +152,29 @@ pnpm exec firebase deploy --only functions --project <env>
 | dev | worklog-dev |
 | stg | worklog-stg |
 | prod | worklog-prod |
+
+### Vlog 生成ジョブ（Cloud Run Jobs）
+
+```bash
+# worklog/ 直下から。Dockerfile はモノレポ全体を文脈にする
+gcloud builds submit --tag "asia-northeast1-docker.pkg.dev/<project>/worklog/vlog-generator" \
+  --project <project> -f jobs/vlog-generator/Dockerfile .
+
+gcloud run jobs deploy vlog-generator \
+  --image "asia-northeast1-docker.pkg.dev/<project>/worklog/vlog-generator" \
+  --region asia-northeast1 --project <project> \
+  --memory 2Gi --cpu 2 --task-timeout 3600s --tasks 4 --max-retries 1
+```
+
+`--tasks 4` にすると `CLOUD_RUN_TASK_INDEX` / `CLOUD_RUN_TASK_COUNT` でログを分担する
+（設計書 7.1「ログ単位でタスク分割」）。23:00 JST の起動は Cloud Scheduler から。
+
+手動で作り直すとき：
+
+```bash
+gcloud run jobs execute vlog-generator --region asia-northeast1 --project <project> \
+  --update-env-vars TENANT_ID=acme,BUSINESS_DATE=2026-07-26,FORCE=true
+```
 
 初回は [`docs/セットアップ手順.md`](docs/セットアップ手順.md) の作業（GCP プロジェクト作成、
 OAuth 同意画面、APNs 鍵、署名付きURL用のIAM権限、Cloud Scheduler / Tasks の作成）が必要。

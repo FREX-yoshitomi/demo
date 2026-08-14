@@ -191,6 +191,37 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@22.20.1)(vite@8.1.5(@types/node@22.20.1)(esbuild@0.28.1)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))
 
+  jobs/vlog-generator:
+    dependencies:
+      '@google-cloud/storage':
+        specifier: ^7.21.0
+        version: 7.21.0(supports-color@8.1.1)
+      '@worklog/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      dayjs:
+        specifier: ^1.11.21
+        version: 1.11.21
+      firebase-admin:
+        specifier: ^14.2.0
+        version: 14.2.0(supports-color@8.1.1)
+    devDependencies:
+      '@types/node':
+        specifier: ^22.20.0
+        version: 22.20.1
+      ffmpeg-static:
+        specifier: ^5.3.0
+        version: 5.3.0(supports-color@8.1.1)
+      firebase-tools:
+        specifier: ^14.24.0
+        version: 14.27.0(@types/node@22.20.1)(supports-color@8.1.1)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@22.20.1)(vite@8.1.5(@types/node@22.20.1)(esbuild@0.28.1)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))
+
   packages/shared:
     dependencies:
       dayjs:

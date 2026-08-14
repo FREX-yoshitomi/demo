@@ -1,0 +1,28 @@
+{
+  "name": "@worklog/vlog-generator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "start": "node dist/main.js",
+    "test:ffmpeg": "vitest run --config vitest.ffmpeg.config.ts",
+    "test:emulator": "firebase emulators:exec --only firestore,storage --project worklog-test \"vitest run --config vitest.emulator.config.ts\""
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^7.21.0",
+    "@worklog/shared": "workspace:*",
+    "dayjs": "^1.11.21",
+    "firebase-admin": "^14.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "ffmpeg-static": "^5.3.0",
+    "firebase-tools": "^14.24.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  }
+}

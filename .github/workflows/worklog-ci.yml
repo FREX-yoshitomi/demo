@@ -60,6 +60,14 @@ jobs:
           key: firebase-emulators-${{ runner.os }}-${{ hashFiles('worklog/firebase.json') }}
           restore-keys: firebase-emulators-${{ runner.os }}-
 
+      # Vlog 生成に必要。ffmpeg-static には drawtext が無いので apt の ffmpeg を使う。
+      # 日本語の焼き込み (F-309) には CJK フォントも要る
+      - name: FFmpeg と CJK フォントをインストール
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg fonts-noto-cjk
+          ffmpeg -hide_banner -filters | grep -q " drawtext "
+
       - name: 依存をインストール
         run: pnpm install --frozen-lockfile
 
@@ -69,10 +77,12 @@ jobs:
       - name: 型チェック
         run: pnpm -r typecheck
 
-      - name: ユニットテスト（共有ロジック・Functions）
+      - name: ユニットテスト（共有ロジック・Functions・アプリ・Vlog生成）
         run: |
           pnpm --filter @worklog/shared test
           pnpm --filter @worklog/functions test
+          pnpm --filter @worklog/app test
+          pnpm --filter @worklog/vlog-generator test
 
       # ここが落ちたらマージしない（受け入れ基準 #1）
       - name: テナント分離テスト（Firestore / Storage ルール）
@@ -81,5 +91,15 @@ jobs:
       - name: Functions 統合テスト（エミュレータ）
         run: pnpm --filter @worklog/functions test:emulator
 
-      - name: Functions をビルド
-        run: pnpm --filter @worklog/functions build
+      # 実際に FFmpeg を回す。xstack はフィルタの相性を実行するまで検出できない
+      - name: Vlog 生成テスト（実 FFmpeg）
+        env:
+          VLOG_FONT_FILE: /usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc
+        run: |
+          pnpm --filter @worklog/vlog-generator test:ffmpeg
+          pnpm --filter @worklog/vlog-generator test:emulator
+
+      - name: ビルド
+        run: |
+          pnpm --filter @worklog/functions build
+          pnpm --filter @worklog/vlog-generator build
