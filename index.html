@@ -36,7 +36,10 @@
         <div class="counter__classes" id="cntClasses" aria-label="組ごとの参加人数"></div>
       </div>
 
-      <a href="#rsvp" class="btn btn--primary hero__cta">受付をする（1分）</a>
+      <!-- アンケート実施中バナー（config.js の surveyDeadline で制御） -->
+      <p class="hero__survey" id="surveyNotice" hidden></p>
+
+      <a href="#rsvp" class="btn btn--primary hero__cta">アンケートに答える（1分）</a>
       <p class="hero__note">出席・欠席どちらの方もこちらからどうぞ</p>
     </div>
   </header>
@@ -88,10 +91,10 @@
     <!-- ===== 受付フォーム ===== -->
     <section class="section section--rsvp" id="rsvp">
       <div class="container">
-        <h2 class="section__title">参加受付</h2>
+        <h2 class="section__title">参加アンケート</h2>
         <p class="rsvp__intro">
-          組と名前を入れて送信すると受付完了です。<br />
-          学年名簿と自動で照合されるので、後から変更もできます。
+          まずは<strong>現時点の気持ち</strong>で大丈夫です（あとから変更OK）。<br />
+          組と名前を入れて送信すると回答完了。学年名簿と自動で照合されます。
         </p>
 
         <form id="rsvpForm" class="form" novalidate>
@@ -143,13 +146,13 @@
             <textarea id="message" name="message" rows="3" placeholder="近況、先生への伝言など何でも"></textarea>
           </div>
 
-          <button type="submit" class="btn btn--primary form__submit" id="submitBtn">受付を完了する</button>
+          <button type="submit" class="btn btn--primary form__submit" id="submitBtn">回答を送信する</button>
           <p class="form__status" id="formStatus" role="status" aria-live="polite"></p>
         </form>
 
         <!-- 受付完了後に表示される支払い案内 -->
         <div class="paydone" id="payDone" hidden>
-          <h3>✅ 受付が完了しました</h3>
+          <h3>✅ 回答を受け付けました</h3>
           <p>参加予定の方は、続けて下の「お支払い」までお願いします。</p>
         </div>
       </div>
