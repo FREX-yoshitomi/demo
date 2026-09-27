@@ -110,13 +110,21 @@ a { color: inherit; }
 .bar__col.is-zero { background: var(--rule); }
 .bar__name { font-size: .66rem; color: var(--muted); margin-top: 3px; border-top: 1px solid var(--rule); width: 100%; text-align: center; }
 
-/* 校舎 */
-.school { position: relative; margin: 26px 0 0; }
-.school__photo {
-  height: 0; background: url("assets/school.jpg") center/cover no-repeat;
-}
+/* 校舎（写真があれば写真、なければ線画） */
+.school { margin: 26px 0 0; }
+.school__img { display: none; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.school.has-photo .school__img { display: block; filter: saturate(.85) contrast(.97); border: 1px solid var(--ink); padding: 6px; background: #fff; }
+.school.has-photo .school__art { display: none; }
 .school__art { width: 100%; height: auto; color: var(--ink-2); }
 .school figcaption { font-size: .66rem; color: var(--muted); text-align: right; margin-top: 4px; }
+
+/* ご挨拶の横の写真 */
+.snap { margin: 0 0 22px; }
+.snap img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; filter: saturate(.85) contrast(.97); border: 1px solid var(--ink); padding: 5px; background: #fff; }
+.snap figcaption { font-family: var(--gothic); font-size: .66rem; color: var(--muted); margin-top: 4px; }
+@media (min-width: 720px) {
+  .snap { float: right; width: 42%; margin: 4px 0 12px 24px; transform: rotate(1.2deg); }
+}
 
 /* ---------- セクション ---------- */
 main { max-width: 880px; margin: 0 auto; padding: 0 20px; }
@@ -295,6 +303,7 @@ textarea.input { resize: vertical; }
 @media (min-width: 720px) {
   .hero__main { max-width: 540px; margin-right: auto; }
   .school__art { max-width: 640px; margin: 0 auto; }
+  .school__img { aspect-ratio: 21 / 9; }
 }
 
 [hidden] { display: none !important; }

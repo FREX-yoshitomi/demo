@@ -49,9 +49,10 @@
       </div>
     </div>
 
-    <!-- 校舎の線画（時計塔とアーチの玄関）。assets/school.jpg を置くと写真が重なります -->
-    <figure class="school">
-      <div class="school__photo" aria-hidden="true"></div>
+    <!-- 校舎：assets/school.jpg があれば写真、なければ線画 -->
+    <figure class="school" id="schoolFigure">
+      <img class="school__img" src="assets/school.jpg" alt="武雄高校の校舎"
+           onload="this.parentNode.classList.add('has-photo')" onerror="this.remove()" />
       <svg class="school__art" viewBox="0 0 800 150" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
         <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">
           <path d="M0 149.5 H800" />
@@ -71,10 +72,14 @@
     <section class="sec" id="intro">
       <h2 class="sec__h"><span class="sec__n">一</span>ご挨拶</h2>
       <div class="sec__body letter">
+        <figure class="snap">
+          <img src="assets/school2.jpg" alt="武雄高校の校舎" onerror="this.parentNode.remove()" />
+          <figcaption>いまの武雄高校</figcaption>
+        </figure>
         <p>ご無沙汰しています。武雄高校を平成27年3月に卒業した同級生で、同窓会を企画しています。</p>
         <p>卒業してから12年、みんな30歳になりました。久しぶりに当時の顔ぶれで集まれたらと思い、声をかけています。当時お世話になった先生方もお招きする予定です。</p>
         <p>日程と人数を決めるために、まずは下のアンケートで今の予定を教えてください。</p>
-        <p class="letter__sign">幹事　よしとみ　ひろき</p>
+        <p class="letter__sign">幹事　吉富 大起　諸岡 拓貴</p>
       </div>
     </section>
 
@@ -195,8 +200,8 @@
       <div class="sec__body">
         <p class="sec__lead">わからないことや、連絡がつかない同級生・先生の情報があれば教えてください。</p>
         <dl class="facts">
-          <div><dt>よしとみ</dt><dd>サイト・全体の連絡<small><a href="mailto:taiki_yoshitomi@frex.works">taiki_yoshitomi@frex.works</a></small></dd></div>
-          <div><dt>ひろき</dt><dd>声かけ・集客<small>連絡先は追って掲載します</small></dd></div>
+          <div><dt>吉富 大起</dt><dd>サイト・全体の連絡<small><a href="mailto:taiki_yoshitomi@frex.works">taiki_yoshitomi@frex.works</a></small></dd></div>
+          <div><dt>諸岡 拓貴</dt><dd>声かけ・集客<small>連絡先は追って掲載します</small></dd></div>
         </dl>
       </div>
     </section>

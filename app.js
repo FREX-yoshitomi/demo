@@ -14,7 +14,6 @@ let lastTotal = null;
 loadStats();
 applyPayConfig();
 applySurveyNotice();
-applySchoolPhoto();
 bindFormUx();
 bindFloatingCta();
 
@@ -87,17 +86,6 @@ function applySurveyNotice() {
     cd.parentNode.removeChild(cd.previousSibling);
   }
   document.getElementById("surveyNotice").hidden = false;
-}
-
-// assets/school.jpg があれば線画の上に写真を表示
-function applySchoolPhoto() {
-  const img = new Image();
-  img.onload = () => {
-    const el = document.querySelector(".school__photo");
-    el.style.height = "220px";
-    document.querySelector(".school__art").style.display = "none";
-  };
-  img.src = "assets/school.jpg";
 }
 
 // ---------- 会費・PayPayリンク ----------
