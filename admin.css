@@ -1,25 +1,27 @@
 :root {
-  --navy: #1d2b4a;
+  --ink: #1f2430;
+  --shu: #b3402a;
+  --navy: #1f2430;
   --navy-deep: #131d33;
-  --gold: #c8a25a;
-  --paper: #f4f5f8;
+  --gold: #b3402a;
+  --paper: #f5f1e8;
   --card: #ffffff;
-  --ink: #25282d;
   --ink-soft: #6b7280;
-  --line: #e5e7eb;
+  --line: #d9d2c2;
   --green: #1e7a46;
   --green-bg: #e7f4ec;
   --amber: #b5732f;
   --amber-bg: #fbf0e3;
   --gray-bg: #eef0f3;
   --red: #c0392b;
-  --radius: 12px;
-  --shadow: 0 4px 16px rgba(19, 29, 51, 0.07);
+  --radius: 4px;
+  --shadow: 0 0 0 1px var(--line);
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   margin: 0;
-  font-family: "Noto Sans JP", system-ui, sans-serif;
+  font-family: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui, sans-serif;
   color: var(--ink);
   background: var(--paper);
   line-height: 1.6;
@@ -27,10 +29,10 @@ body {
 }
 .btn {
   border: none; cursor: pointer; font-family: inherit; font-weight: 700;
-  padding: 12px 24px; border-radius: 999px; font-size: 0.95rem;
+  padding: 12px 24px; border-radius: 3px; font-size: 0.95rem;
   transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
 }
-.btn--primary { background: linear-gradient(135deg, var(--gold), #b88c45); color: var(--navy-deep); }
+.btn--primary { background: var(--ink); color: #f5f1e8; }
 .btn--primary:hover { transform: translateY(-1px); }
 .btn--ghost { background: transparent; border: 1.5px solid var(--line); color: var(--ink); }
 .btn:disabled { opacity: 0.6; cursor: progress; }
@@ -43,14 +45,13 @@ body {
 /* ===== ログイン ===== */
 .login {
   min-height: 100vh; display: grid; place-items: center; padding: 24px;
-  background: radial-gradient(circle at 50% 0%, rgba(200,162,90,0.18), transparent 55%),
-              linear-gradient(160deg, var(--navy), var(--navy-deep));
+  background: var(--paper);
 }
 .login__card {
-  background: var(--card); border-radius: 18px; padding: 40px 32px;
-  width: min(420px, 100%); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  background: var(--card); border-radius: 4px; padding: 40px 32px;
+  width: min(420px, 100%); text-align: center; box-shadow: 0 0 0 1px var(--line);
 }
-.login__eyebrow { letter-spacing: 0.2em; font-size: 0.72rem; color: var(--gold); margin: 0 0 8px; }
+.login__eyebrow { font-size: 0.8rem; color: var(--ink-soft); margin: 0 0 8px; }
 .login__title { font-size: 1.4rem; margin: 0 0 6px; }
 .login__lead { color: var(--ink-soft); font-size: 0.9rem; margin: 0 0 24px; }
 .login__form { display: flex; flex-direction: column; gap: 12px; }
@@ -69,7 +70,7 @@ body {
 }
 .topbar__title { font-weight: 700; }
 .topbar__left { display: flex; align-items: center; gap: 12px; }
-.badge { font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.badge { font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 3px; }
 .badge--live { background: var(--green-bg); color: var(--green); }
 .badge--demo { background: var(--amber-bg); color: var(--amber); }
 
@@ -104,8 +105,8 @@ body {
 /* 進捗バー */
 .progress { background: var(--card); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); margin-bottom: 18px; }
 .progress__label { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; }
-.progress__track { height: 10px; background: var(--gray-bg); border-radius: 999px; overflow: hidden; }
-.progress__fill { height: 100%; background: linear-gradient(90deg, var(--gold), #b88c45); border-radius: 999px; transition: width 0.3s; }
+.progress__track { height: 10px; background: var(--gray-bg); border-radius: 3px; overflow: hidden; }
+.progress__fill { height: 100%; background: var(--shu); transition: width 0.3s; }
 
 /* テーブル */
 .table-wrap { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; }
@@ -134,7 +135,7 @@ select.kind-out { background: #fbe9e7; color: var(--red); font-weight: 700; }
 .chip {
   border: 1.5px solid var(--line); background: var(--card); color: var(--ink-soft);
   font-family: inherit; font-size: 0.8rem; font-weight: 700;
-  padding: 6px 14px; border-radius: 999px; cursor: pointer;
+  padding: 6px 14px; border-radius: 3px; cursor: pointer;
   transition: border-color 0.12s, color 0.12s, background 0.12s;
 }
 .chip:hover { border-color: var(--gold); }
@@ -161,7 +162,7 @@ select.kind-out { background: #fbe9e7; color: var(--red); font-weight: 700; }
 
 /* モーダル */
 .modal { position: fixed; inset: 0; background: rgba(19,29,51,0.5); display: grid; place-items: center; z-index: 50; padding: 20px; }
-.modal__card { background: #fff; border-radius: 16px; padding: 28px; width: min(420px, 100%); }
+.modal__card { background: #fff; border-radius: 4px; padding: 28px; width: min(420px, 100%); }
 .modal__card h2 { margin: 0 0 4px; font-size: 1.2rem; }
 .modal__card h3 { font-size: 0.95rem; color: var(--ink-soft); margin: 18px 0 10px; }
 .modal__form { display: flex; flex-direction: column; gap: 10px; }

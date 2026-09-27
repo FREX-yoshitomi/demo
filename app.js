@@ -14,6 +14,7 @@ let lastTotal = null;
 loadStats();
 applyPayConfig();
 applySurveyNotice();
+applySchoolPhoto();
 bindFormUx();
 bindFloatingCta();
 
@@ -52,7 +53,7 @@ function renderCounter(total, pending, byClass) {
     const n = byClass[c] || 0;
     return `<div class="bar">
       <span class="bar__val">${n}</span>
-      <span class="bar__col${n ? "" : " is-zero"}" data-h="${n ? Math.round(Math.max(8, (n / max) * 52)) : 4}"></span>
+      <span class="bar__col${n ? "" : " is-zero"}" data-h="${n ? Math.round(Math.max(6, (n / max) * 48)) : 4}"></span>
       <span class="bar__name">${c}組</span>
     </div>`;
   }).join("");
@@ -76,33 +77,39 @@ function countUp(el, to) {
 // ---------- 〆切バッジ・カウントダウン ----------
 function applySurveyNotice() {
   if (!APP_CONFIG.surveyDeadline) return;
-  const badge = document.getElementById("surveyNotice");
+  document.getElementById("surveyDeadlineLabel").textContent = APP_CONFIG.surveyDeadline;
   const cd = document.getElementById("surveyCountdown");
   const deadline = APP_CONFIG.surveyDeadlineAt ? new Date(APP_CONFIG.surveyDeadlineAt) : null;
-  const label = `〆切 ${APP_CONFIG.surveyDeadline}`;
-
   if (deadline && !isNaN(deadline)) {
     const days = Math.ceil((deadline - new Date()) / 86400000);
-    cd.textContent = days < 0 ? "受付は締め切りました" : days === 0 ? "本日〆切！" : `〆切まであと${days}日`;
-    badge.title = label;
+    cd.textContent = days < 0 ? "締め切りました" : days === 0 ? "今日まで" : `あと${days}日`;
   } else {
-    cd.textContent = label;
+    cd.parentNode.removeChild(cd.previousSibling);
   }
-  badge.hidden = false;
+  document.getElementById("surveyNotice").hidden = false;
+}
+
+// assets/school.jpg があれば線画の上に写真を表示
+function applySchoolPhoto() {
+  const img = new Image();
+  img.onload = () => {
+    const el = document.querySelector(".school__photo");
+    el.style.height = "220px";
+    document.querySelector(".school__art").style.display = "none";
+  };
+  img.src = "assets/school.jpg";
 }
 
 // ---------- 会費・PayPayリンク ----------
 function applyPayConfig() {
   if (APP_CONFIG.fee) {
-    const cell = document.getElementById("feeCell");
-    cell.querySelector(".info__label").textContent = "会費";
-    cell.querySelector(".info__value").textContent = APP_CONFIG.fee;
-    cell.querySelector(".info__note").textContent = "PayPay または当日現金";
+    document.getElementById("feeValue").textContent = APP_CONFIG.fee;
+    document.getElementById("feeNote").textContent = "PayPay または当日現金でお支払いください";
   }
   if (APP_CONFIG.payPayLink) {
     document.getElementById("payLinkArea").innerHTML =
       `<a class="paylink" href="${encodeURI(APP_CONFIG.payPayLink)}" target="_blank" rel="noopener">PayPayで送金する</a>` +
-      (APP_CONFIG.fee ? `<br />金額：${escapeHtml(APP_CONFIG.fee)}` : "");
+      (APP_CONFIG.fee ? `（${escapeHtml(APP_CONFIG.fee)}）` : "");
   }
 }
 
@@ -124,7 +131,7 @@ function updateProgress() {
   const filled = REQUIRED.filter((k) => String(fd.get(k) || "").trim()).length;
   document.getElementById("formProgress").style.width = (filled / REQUIRED.length) * 100 + "%";
   document.getElementById("formProgressText").textContent =
-    filled === REQUIRED.length ? "必須項目OK！送信できます" : `必須 ${filled} / ${REQUIRED.length}`;
+    filled === REQUIRED.length ? "必須項目はすべて入力済みです" : `必須 ${filled} / ${REQUIRED.length}`;
 }
 
 // ---------- 送信 ----------
@@ -168,9 +175,9 @@ form.addEventListener("submit", async (e) => {
 
 function showThanks(data, res, isDemo) {
   const msg = {
-    "参加": "当日会えるのを楽しみにしています！",
+    "参加": "当日会えるのを楽しみにしています。",
     "未定": "日程が決まったらすぐにお知らせします。",
-    "不参加": "教えてくれてありがとう。またの機会にぜひ！",
+    "不参加": "教えてくれてありがとう。また次の機会に。",
   }[data.attendance] || "";
   document.getElementById("thanksMsg").textContent =
     (isDemo ? "【テストモード】保存はされていません。" : "") +
@@ -178,7 +185,7 @@ function showThanks(data, res, isDemo) {
   document.getElementById("thanksCount").textContent = lastTotal ?? "–";
 
   const url = location.href.split("#")[0];
-  const text = `武雄高校（2015年3月卒）の同窓会アンケート、1分で答えられるよ！\n${APP_CONFIG.surveyDeadline ? `〆切：${APP_CONFIG.surveyDeadline}\n` : ""}${url}`;
+  const text = `武雄高校（H27年3月卒）の同窓会の参加アンケートです。1分で答えられます。\n${APP_CONFIG.surveyDeadline ? `〆切：${APP_CONFIG.surveyDeadline}\n` : ""}${url}`;
   document.getElementById("lineShare").href = "https://line.me/R/msg/text/?" + encodeURIComponent(text);
 
   form.reset();
