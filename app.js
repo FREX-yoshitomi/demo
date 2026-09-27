@@ -12,6 +12,15 @@ const submitBtn = document.getElementById("submitBtn");
 // ---------- 参加人数カウンター ----------
 loadStats();
 applyPayConfig();
+applySurveyNotice();
+
+/** アンケート実施中バナー（config.js の surveyDeadline を反映） */
+function applySurveyNotice() {
+  if (!APP_CONFIG.surveyDeadline) return;
+  const el = document.getElementById("surveyNotice");
+  el.innerHTML = `📋 参加アンケート実施中 <b>〆切：${escapeHtml(APP_CONFIG.surveyDeadline)}</b>`;
+  el.hidden = false;
+}
 
 async function loadStats() {
   const total = document.getElementById("cntTotal");
@@ -86,8 +95,8 @@ form.addEventListener("submit", async (e) => {
     form.reset();
     setStatus(
       res.matched
-        ? "受付しました！名簿と照合済みです 🎉"
-        : "受付しました！（名簿と自動照合できなかったため、幹事が確認します）",
+        ? "回答を受け付けました！名簿と照合済みです 🎉"
+        : "回答を受け付けました！（名簿と自動照合できなかったため、幹事が確認します）",
       "success"
     );
     const done = document.getElementById("payDone");
@@ -109,7 +118,7 @@ form.addEventListener("submit", async (e) => {
 
 function setLoading(isLoading) {
   submitBtn.disabled = isLoading;
-  submitBtn.textContent = isLoading ? "送信中…" : "受付を完了する";
+  submitBtn.textContent = isLoading ? "送信中…" : "回答を送信する";
 }
 function setStatus(message, type) {
   statusEl.textContent = message;
