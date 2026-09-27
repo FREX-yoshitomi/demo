@@ -1,36 +1,29 @@
 /* ============================================================
  * 武雄高校 同窓会 トップページ
- *  - 参加人数カウンター（公開API ?action=stats）
- *  - 受付フォーム（名簿と自動照合）
- *  - 会費・PayPayリンクの表示（config.js の設定を反映）
+ *  - 参加人数カウンター＋組別バー（公開API ?action=stats）
+ *  - アンケート（名簿と自動照合）・入力進捗・送信完了画面
+ *  - 〆切カウントダウン / 会費・PayPayリンク表示（config.js）
  * ============================================================ */
 
 const form = document.getElementById("rsvpForm");
 const statusEl = document.getElementById("formStatus");
 const submitBtn = document.getElementById("submitBtn");
+const REQUIRED = ["cls", "name", "attendance", "contact"];
+let lastTotal = null;
 
-// ---------- 参加人数カウンター ----------
 loadStats();
 applyPayConfig();
 applySurveyNotice();
+bindFormUx();
+bindFloatingCta();
 
-/** アンケート実施中バナー（config.js の surveyDeadline を反映） */
-function applySurveyNotice() {
-  if (!APP_CONFIG.surveyDeadline) return;
-  const el = document.getElementById("surveyNotice");
-  el.innerHTML = `📋 参加アンケート実施中 <b>〆切：${escapeHtml(APP_CONFIG.surveyDeadline)}</b>`;
-  el.hidden = false;
-}
-
+// ---------- 参加人数カウンター ----------
 async function loadStats() {
-  const total = document.getElementById("cntTotal");
   const sub = document.getElementById("cntSub");
-  const classes = document.getElementById("cntClasses");
 
-  // 未接続時はデモ表示
   if (!isConnected()) {
     renderCounter(27, 6, { 1: 4, 2: 5, 3: 3, 4: 4, 5: 4, 6: 3, 7: 4 });
-    sub.textContent = "（デモ表示）ほか 未定 6名";
+    sub.textContent = "（デモ表示）ほか 日程次第 6名";
     return;
   }
   try {
@@ -40,74 +33,131 @@ async function loadStats() {
     renderCounter(d.total, d.pending, d.byClass || {});
   } catch (err) {
     console.error(err);
-    total.textContent = "–";
+    document.getElementById("cntTotal").textContent = "–";
     sub.textContent = "集計は準備中です";
-    classes.innerHTML = "";
-  }
-
-  function renderCounter(t, pending, byClass) {
-    total.textContent = t;
-    sub.textContent = pending > 0 ? `ほか 日程次第で検討中 ${pending}名` : "受付するとここに反映されます";
-    classes.innerHTML = ["1", "2", "3", "4", "5", "6", "7"]
-      .map((c) => `<span class="counter__chip">${c}組 <b>${byClass[c] || 0}</b></span>`)
-      .join("");
+    document.getElementById("cntClasses").innerHTML = "";
   }
 }
 
-// ---------- 会費・PayPayリンク表示 ----------
+function renderCounter(total, pending, byClass) {
+  lastTotal = total;
+  countUp(document.getElementById("cntTotal"), total);
+  document.getElementById("cntSub").textContent =
+    pending > 0 ? `ほか 日程次第で検討中 ${pending}名` : "回答するとここに反映されます";
+
+  const classes = ["1", "2", "3", "4", "5", "6", "7"];
+  const max = Math.max(1, ...classes.map((c) => byClass[c] || 0));
+  const wrap = document.getElementById("cntClasses");
+  wrap.innerHTML = classes.map((c) => {
+    const n = byClass[c] || 0;
+    return `<div class="bar">
+      <span class="bar__val">${n}</span>
+      <span class="bar__col${n ? "" : " is-zero"}" data-h="${n ? Math.round(Math.max(8, (n / max) * 52)) : 4}"></span>
+      <span class="bar__name">${c}組</span>
+    </div>`;
+  }).join("");
+  requestAnimationFrame(() => {
+    wrap.querySelectorAll(".bar__col").forEach((el) => (el.style.height = el.dataset.h + "px"));
+  });
+}
+
+function countUp(el, to) {
+  const from = Number(el.textContent) || 0;
+  const start = performance.now();
+  const dur = 900;
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / dur);
+    el.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - t, 3)));
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// ---------- 〆切バッジ・カウントダウン ----------
+function applySurveyNotice() {
+  if (!APP_CONFIG.surveyDeadline) return;
+  const badge = document.getElementById("surveyNotice");
+  const cd = document.getElementById("surveyCountdown");
+  const deadline = APP_CONFIG.surveyDeadlineAt ? new Date(APP_CONFIG.surveyDeadlineAt) : null;
+  const label = `〆切 ${APP_CONFIG.surveyDeadline}`;
+
+  if (deadline && !isNaN(deadline)) {
+    const days = Math.ceil((deadline - new Date()) / 86400000);
+    cd.textContent = days < 0 ? "受付は締め切りました" : days === 0 ? "本日〆切！" : `〆切まであと${days}日`;
+    badge.title = label;
+  } else {
+    cd.textContent = label;
+  }
+  badge.hidden = false;
+}
+
+// ---------- 会費・PayPayリンク ----------
 function applyPayConfig() {
   if (APP_CONFIG.fee) {
-    document.getElementById("feeCell").innerHTML =
-      `<strong>${escapeHtml(APP_CONFIG.fee)}</strong><br /><small>お支払いは下の「お支払い」参照（PayPay / 当日現金）</small>`;
+    const cell = document.getElementById("feeCell");
+    cell.querySelector(".info__label").textContent = "会費";
+    cell.querySelector(".info__value").textContent = APP_CONFIG.fee;
+    cell.querySelector(".info__note").textContent = "PayPay または当日現金";
   }
   if (APP_CONFIG.payPayLink) {
     document.getElementById("payLinkArea").innerHTML =
       `<a class="paylink" href="${encodeURI(APP_CONFIG.payPayLink)}" target="_blank" rel="noopener">PayPayで送金する</a>` +
-      (APP_CONFIG.fee ? `<br /><small>金額：${escapeHtml(APP_CONFIG.fee)}</small>` : "");
+      (APP_CONFIG.fee ? `<br />金額：${escapeHtml(APP_CONFIG.fee)}` : "");
   }
 }
 
-// ---------- 受付フォーム ----------
+// ---------- フォームUX（進捗バー） ----------
+function bindFormUx() {
+  form.addEventListener("input", updateProgress);
+  form.addEventListener("change", updateProgress);
+  document.getElementById("againBtn").addEventListener("click", () => {
+    document.getElementById("payDone").hidden = true;
+    document.getElementById("surveyCard").hidden = false;
+    clearStatus();
+    document.getElementById("rsvp").scrollIntoView({ behavior: "smooth" });
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const fd = new FormData(form);
+  const filled = REQUIRED.filter((k) => String(fd.get(k) || "").trim()).length;
+  document.getElementById("formProgress").style.width = (filled / REQUIRED.length) * 100 + "%";
+  document.getElementById("formProgressText").textContent =
+    filled === REQUIRED.length ? "必須項目OK！送信できます" : `必須 ${filled} / ${REQUIRED.length}`;
+}
+
+// ---------- 送信 ----------
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   clearStatus();
 
   if (!form.checkValidity()) {
     const firstInvalid = form.querySelector(":invalid");
-    if (firstInvalid) firstInvalid.focus();
-    setStatus("未入力の必須項目があります。ご確認ください。", "error");
+    if (firstInvalid) {
+      (firstInvalid.closest(".q") || firstInvalid).scrollIntoView({ behavior: "smooth", block: "center" });
+      if (firstInvalid.type !== "radio") firstInvalid.focus({ preventScroll: true });
+    }
+    setStatus("未回答の必須項目があります。", "error");
     return;
   }
 
-  const data = Object.fromEntries(new FormData(form).entries());
+  const fd = new FormData(form);
+  const data = Object.fromEntries(fd.entries());
+  data.dates = fd.getAll("dates").join("・");
   setLoading(true);
 
   if (!isConnected()) {
     console.table(data);
     setLoading(false);
-    setStatus("【テストモード】送信先が未設定です。入力内容はコンソールに表示しました。", "error");
+    showThanks(data, { matched: true }, true);
     return;
   }
 
   try {
     const res = await apiCall("rsvp", data);
-    const attending = data.attendance === "参加";
-    form.reset();
-    setStatus(
-      res.matched
-        ? "回答を受け付けました！名簿と照合済みです 🎉"
-        : "回答を受け付けました！（名簿と自動照合できなかったため、幹事が確認します）",
-      "success"
-    );
-    const done = document.getElementById("payDone");
-    done.hidden = false;
-    if (attending) {
-      done.querySelector("p").textContent = "参加予定の方は、続けて下の「お支払い」までお願いします。";
-      document.getElementById("pay").scrollIntoView({ behavior: "smooth" });
-    } else {
-      done.querySelector("p").textContent = "ご回答ありがとうございます。変更はいつでもこのフォームからどうぞ。";
-    }
-    loadStats(); // カウンターを更新
+    showThanks(data, res, false);
+    loadStats();
   } catch (err) {
     console.error(err);
     setStatus("送信に失敗しました。通信環境をご確認のうえ、もう一度お試しください。", "error");
@@ -116,6 +166,42 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
+function showThanks(data, res, isDemo) {
+  const msg = {
+    "参加": "当日会えるのを楽しみにしています！",
+    "未定": "日程が決まったらすぐにお知らせします。",
+    "不参加": "教えてくれてありがとう。またの機会にぜひ！",
+  }[data.attendance] || "";
+  document.getElementById("thanksMsg").textContent =
+    (isDemo ? "【テストモード】保存はされていません。" : "") +
+    msg + (res.matched ? "" : "（名簿の確認は幹事が行います）");
+  document.getElementById("thanksCount").textContent = lastTotal ?? "–";
+
+  const url = location.href.split("#")[0];
+  const text = `武雄高校（2015年3月卒）の同窓会アンケート、1分で答えられるよ！\n${APP_CONFIG.surveyDeadline ? `〆切：${APP_CONFIG.surveyDeadline}\n` : ""}${url}`;
+  document.getElementById("lineShare").href = "https://line.me/R/msg/text/?" + encodeURIComponent(text);
+
+  form.reset();
+  updateProgress();
+  document.getElementById("surveyCard").hidden = true;
+  const done = document.getElementById("payDone");
+  done.hidden = false;
+  done.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+// ---------- 下部固定CTA ----------
+function bindFloatingCta() {
+  const cta = document.getElementById("floatingCta");
+  const hero = document.querySelector(".hero");
+  const survey = document.getElementById("rsvp");
+  let heroVisible = true, surveyVisible = false;
+  const update = () => cta.classList.toggle("is-visible", !heroVisible && !surveyVisible);
+  if (!("IntersectionObserver" in window)) return;
+  new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; update(); }).observe(hero);
+  new IntersectionObserver(([e]) => { surveyVisible = e.isIntersecting; update(); }, { threshold: 0.05 }).observe(survey);
+}
+
+// ---------- ユーティリティ ----------
 function setLoading(isLoading) {
   submitBtn.disabled = isLoading;
   submitBtn.textContent = isLoading ? "送信中…" : "回答を送信する";
