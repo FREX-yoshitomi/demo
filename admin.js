@@ -26,7 +26,7 @@ const TABLES = {
   roster: {
     label: "名簿・参加状況",
     columns: [
-      { key: "組", type: "select", options: ["1", "2", "3", "4", "5", "6", "7"], classFor: () => "", w: "64px" },
+      { key: "組", type: "select", options: ["1", "2", "3", "4", "5", "6", "7"], classFor: () => "", w: "84px" },
       { key: "名前", type: "text", w: "130px" },
       { key: "旧姓", type: "text", w: "80px" },
       { key: "出欠", type: "select", options: ["未回答", "参加", "未定", "不参加"], classFor: attClass, w: "104px" },
@@ -266,7 +266,7 @@ function renderRoster() {
       ${visible.length ? "" : '<p class="empty">該当する行がありません。</p>'}
     </div>
     <div class="addbar"><button class="btn btn--ghost" data-add="roster">＋ 名簿に追加</button></div>
-    <p class="hint">💡 実名簿への差し替え：スプレッドシートの「名簿」タブでサンプル行を削除し、組・名前を貼り付けてください（IDは連番）。</p>`;
+    <p class="hint">実名簿への差し替え：スプレッドシートの「名簿」タブでサンプル行を削除し、組・名前を貼り付けてください（IDは連番）。</p>`;
 }
 
 /** 受付ログ（読み取り専用） */
@@ -329,7 +329,7 @@ function renderBudget() {
       </table>
     </div>
     <div class="addbar"><button class="btn btn--ghost" data-add="budget">＋ 行を追加</button></div>
-    <p class="hint">💡 集金の実績は名簿タブの「支払い済み」人数 × 会費 が目安になります。</p>`;
+    <p class="hint">集金の実績は名簿タブの「支払い済み」人数 × 会費 が目安になります。</p>`;
 }
 
 // ---------- 行・セル生成 ----------

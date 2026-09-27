@@ -3,296 +3,212 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>武雄高校 同窓会 ｜ 2015年3月卒業 世代</title>
-  <meta name="description" content="佐賀県立武雄高等学校 2015年3月卒業世代（3年1組〜7組）の同窓会。まずは1分の参加アンケートにご協力ください。" />
-  <meta name="theme-color" content="#131d33" />
+  <title>武雄高校 同窓会のご案内（平成27年3月卒業）</title>
+  <meta name="description" content="佐賀県立武雄高等学校 平成27年3月卒業（3年1組〜7組）の同窓会のご案内です。まずは参加アンケートにご回答ください。" />
+  <meta name="theme-color" content="#f5f1e8" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="武雄高校 同窓会 ｜ 30歳の、再会。" />
-  <meta property="og:description" content="2015年3月卒業のみんなへ。久しぶりに武雄で集まりませんか？まずは1分アンケートから。" />
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta property="og:title" content="武雄高校 同窓会のご案内（平成27年3月卒業）" />
+  <meta property="og:description" content="12月末に武雄で同窓会を開きます。まずは参加アンケートにご回答ください（10/4〆切）。" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Shippori+Mincho:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- ===== ヒーロー ===== -->
   <header class="hero">
-    <!-- assets/school.jpg を置くと背景写真になります（無ければ紺のグラデーション） -->
-    <div class="hero__photo" aria-hidden="true"></div>
-    <div class="hero__petals" aria-hidden="true">
-      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    <div class="topline">
+      <span>佐賀県立武雄高等学校</span>
+      <span class="topline__right" id="surveyNotice" hidden>アンケート〆切 <b id="surveyDeadlineLabel"></b>（<span id="surveyCountdown"></span>）</span>
     </div>
 
-    <div class="hero__inner">
-      <p class="hero__school">佐賀県立武雄高等学校</p>
-      <p class="hero__gen">2015年3月卒業 ／ 3年1組〜7組</p>
-      <h1 class="hero__title">同窓会</h1>
-      <p class="hero__catch">30歳の、再会。</p>
-
-      <div class="survey-badge" id="surveyNotice" hidden>
-        <span class="survey-badge__dot" aria-hidden="true"></span>
-        <span>参加アンケート実施中</span>
-        <span class="survey-badge__sep" aria-hidden="true"></span>
-        <span id="surveyCountdown"></span>
+    <div class="hero__body">
+      <div class="hero__titles">
+        <h1 class="v-title">同窓会のご案内</h1>
+        <p class="v-sub">平成二十七年三月卒業　三年一組〜七組</p>
       </div>
 
-      <!-- 参加人数カウンター -->
-      <section class="counter" aria-labelledby="counterLabel">
-        <p class="counter__label" id="counterLabel">現在の参加予定</p>
-        <p class="counter__num"><span id="cntTotal">–</span><small>名</small></p>
-        <p class="counter__sub" id="cntSub">集計を読み込み中…</p>
-        <div class="bars" id="cntClasses" aria-label="組ごとの参加人数"></div>
-      </section>
+      <div class="hero__main">
+        <p class="hero__lead">
+          卒業して十二年。<br />
+          今年の年末、武雄で集まりましょう。<br />
+          先生方もお招きする予定です。
+        </p>
 
-      <a href="#rsvp" class="btn btn--primary btn--lg">
-        アンケートに答える<span class="btn__hint">約1分</span>
-      </a>
-      <p class="hero__note">出席・欠席どちらの方もご回答ください</p>
+        <div class="count">
+          <p class="count__label">現在の参加予定</p>
+          <p class="count__num"><span id="cntTotal">–</span><small>名</small></p>
+          <p class="count__sub" id="cntSub">集計を読み込み中…</p>
+          <div class="bars" id="cntClasses" aria-label="組ごとの参加人数"></div>
+        </div>
+
+        <a href="#rsvp" class="btn btn--ink btn--block">参加アンケートに答える</a>
+        <p class="hero__note">出席・欠席どちらの方もご回答ください。<br />所要時間は1分ほどです。</p>
+      </div>
     </div>
 
-    <!-- 校舎シルエット（時計塔・アーチ玄関をモチーフにしたオリジナル線画） -->
-    <svg class="hero__school-art" viewBox="0 0 800 160" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
-        <path d="M0 160 V112 H150 V96 H250 V112 H300" />
-        <path d="M300 160 V70 H340 V34 L365 18 L390 34 V70 H430 V160" />
-        <path d="M352 40 V60 M360 40 V60 M370 40 V60 M378 40 V60" />
-        <path d="M430 160 V84 H560 V100 H660 V116 H800" />
-        <path d="M318 160 V132 Q365 100 412 132 V160" />
-        <path d="M150 104 H250 M440 94 H550 M560 110 H650" stroke-dasharray="6 8" />
-      </g>
-      <g fill="currentColor" opacity=".5">
-        <circle cx="120" cy="120" r="10" /><circle cx="106" cy="128" r="8" /><circle cx="134" cy="130" r="7" />
-        <circle cx="700" cy="124" r="11" /><circle cx="684" cy="132" r="8" /><circle cx="716" cy="134" r="7" />
-      </g>
-    </svg>
-
+    <!-- 校舎の線画（時計塔とアーチの玄関）。assets/school.jpg を置くと写真が重なります -->
+    <figure class="school">
+      <div class="school__photo" aria-hidden="true"></div>
+      <svg class="school__art" viewBox="0 0 800 150" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">
+          <path d="M0 149.5 H800" />
+          <path d="M40 150 V104 H170 V88 H270 V104 H320" />
+          <path d="M320 150 V66 H356 V32 L381 16 L406 32 V66 H442 V150" />
+          <path d="M369 38 V58 M377 38 V58 M385 38 V58 M393 38 V58" />
+          <path d="M442 150 V78 H580 V94 H690 V110 H760 V150" />
+          <path d="M338 150 V126 Q381 96 424 126 V150" />
+          <path d="M60 118 H300 M460 100 H570 M590 116 H680" stroke-dasharray="4 7" />
+        </g>
+      </svg>
+      <figcaption>武雄高校 校舎</figcaption>
+    </figure>
   </header>
 
   <main>
-    <!-- ===== ごあいさつ ===== -->
-    <section class="section" id="intro">
-      <div class="container">
-        <p class="eyebrow">Message</p>
-        <h2 class="section__title">ごあいさつ</h2>
-        <div class="letter">
-          <p>
-            ご無沙汰しています。武雄高校で同じ時間を過ごした仲間で、同窓会を企画しています。
-          </p>
-          <p>
-            卒業からもうすぐ12年。みんな30歳という節目の今だからこそ、
-            あの頃の顔ぶれでもう一度集まれたら——そんな思いで声をかけています。
-          </p>
-          <p>
-            当時お世話になった<strong>先生方もお招きする</strong>予定です。
-            まずは下のアンケートで、今の気持ちを聞かせてください。
-          </p>
-          <p class="letter__sign">幹事　よしとみ ・ ひろき</p>
-        </div>
+    <section class="sec" id="intro">
+      <h2 class="sec__h"><span class="sec__n">一</span>ご挨拶</h2>
+      <div class="sec__body letter">
+        <p>ご無沙汰しています。武雄高校を平成27年3月に卒業した同級生で、同窓会を企画しています。</p>
+        <p>卒業してから12年、みんな30歳になりました。久しぶりに当時の顔ぶれで集まれたらと思い、声をかけています。当時お世話になった先生方もお招きする予定です。</p>
+        <p>日程と人数を決めるために、まずは下のアンケートで今の予定を教えてください。</p>
+        <p class="letter__sign">幹事　よしとみ　ひろき</p>
       </div>
     </section>
 
-    <!-- ===== 開催概要 ===== -->
-    <section class="section section--tint" id="details">
-      <div class="container">
-        <p class="eyebrow">Information</p>
-        <h2 class="section__title">開催概要</h2>
+    <section class="sec" id="details">
+      <h2 class="sec__h"><span class="sec__n">二</span>開催概要</h2>
+      <div class="sec__body">
+        <dl class="facts">
+          <div><dt>日程</dt><dd>12月28日（月）・29日（火）・30日（水）のいずれかの夜<small>アンケートで一番多かった日に決めます</small></dd></div>
+          <div><dt>会場</dt><dd>武雄センチュリーホテル（予定）<small>円卓の洋室で、着席して食事をします</small></dd></div>
+          <div><dt>会費</dt><dd><span id="feeValue">6,000〜9,000円ほど（予定）</span><small id="feeNote">料理・飲み放題込み。人数が決まってから確定します</small></dd></div>
+          <div><dt>対象</dt><dd>平成27年3月卒業　3年1組〜7組<small>当時の先生方もお招きします</small></dd></div>
+        </dl>
 
-        <div class="info-grid">
-          <div class="info">
-            <span class="info__icon" aria-hidden="true">📅</span>
-            <p class="info__label">日程（候補）</p>
-            <p class="info__value">12/28・29・30 の夜</p>
-            <p class="info__note">アンケートで一番多い日に決定します</p>
-          </div>
-          <div class="info">
-            <span class="info__icon" aria-hidden="true">📍</span>
-            <p class="info__label">会場（予定）</p>
-            <p class="info__value">武雄センチュリーホテル</p>
-            <p class="info__note">円卓の洋室（着席スタイル）</p>
-          </div>
-          <div class="info" id="feeCell">
-            <span class="info__icon" aria-hidden="true">💴</span>
-            <p class="info__label">会費（目安）</p>
-            <p class="info__value">6,000〜9,000円</p>
-            <p class="info__note">料理・飲み放題込み。人数確定後に決定</p>
-          </div>
-          <div class="info">
-            <span class="info__icon" aria-hidden="true">🎓</span>
-            <p class="info__label">対象</p>
-            <p class="info__value">3年1組〜7組</p>
-            <p class="info__note">＋ 当時の先生方</p>
-          </div>
-        </div>
-
-        <ol class="timeline">
-          <li class="timeline__item is-now"><b>9/28〜10/4</b><span>参加アンケート</span></li>
-          <li class="timeline__item"><b>10月中旬</b><span>日程決定・会場予約</span></li>
-          <li class="timeline__item"><b>11月</b><span>正式なご案内・お支払い</span></li>
-          <li class="timeline__item"><b>12月末</b><span>武雄で再会！</span></li>
+        <h3 class="sub-h">これからの予定</h3>
+        <ol class="plan">
+          <li class="is-now"><span>9/28〜10/4</span>参加アンケート<em>いまここ</em></li>
+          <li><span>10月中旬</span>日程を決めて、会場を予約</li>
+          <li><span>11月</span>正式なご案内と会費のお支払い</li>
+          <li><span>12月末</span>同窓会 当日</li>
         </ol>
       </div>
     </section>
 
-    <!-- ===== アンケート ===== -->
-    <section class="section section--survey" id="rsvp">
-      <div class="container container--narrow">
-        <p class="eyebrow">Survey</p>
-        <h2 class="section__title">参加アンケート</h2>
-        <p class="section__lead">今の気持ちでOK。あとから何度でも変更できます。</p>
+    <section class="sec" id="rsvp">
+      <h2 class="sec__h"><span class="sec__n">三</span>参加アンケート</h2>
+      <div class="sec__body">
+        <p class="sec__lead">今の予定で大丈夫です。あとから何度でも回答し直せます。</p>
 
-        <div class="survey-card" id="surveyCard">
-          <div class="progress" aria-hidden="true">
-            <div class="progress__bar" id="formProgress"></div>
-          </div>
+        <div id="surveyCard">
+          <div class="progress" aria-hidden="true"><div class="progress__bar" id="formProgress"></div></div>
           <p class="progress__text" id="formProgressText">必須 0 / 4</p>
 
           <form id="rsvpForm" class="form" novalidate>
-
-            <!-- Q1 クラス -->
             <fieldset class="q">
-              <legend class="q__title"><span class="q__num">1</span>卒業時のクラス<span class="req">必須</span></legend>
-              <div class="pills">
-                <label class="pill"><input type="radio" name="cls" value="1" required /><span>1組</span></label>
-                <label class="pill"><input type="radio" name="cls" value="2" /><span>2組</span></label>
-                <label class="pill"><input type="radio" name="cls" value="3" /><span>3組</span></label>
-                <label class="pill"><input type="radio" name="cls" value="4" /><span>4組</span></label>
-                <label class="pill"><input type="radio" name="cls" value="5" /><span>5組</span></label>
-                <label class="pill"><input type="radio" name="cls" value="6" /><span>6組</span></label>
-                <label class="pill"><input type="radio" name="cls" value="7" /><span>7組</span></label>
+              <legend class="q__title"><span class="q__num">問1</span>卒業時のクラス<em class="req">必須</em></legend>
+              <div class="cells">
+                <label class="cell"><input type="radio" name="cls" value="1" required /><span>1組</span></label>
+                <label class="cell"><input type="radio" name="cls" value="2" /><span>2組</span></label>
+                <label class="cell"><input type="radio" name="cls" value="3" /><span>3組</span></label>
+                <label class="cell"><input type="radio" name="cls" value="4" /><span>4組</span></label>
+                <label class="cell"><input type="radio" name="cls" value="5" /><span>5組</span></label>
+                <label class="cell"><input type="radio" name="cls" value="6" /><span>6組</span></label>
+                <label class="cell"><input type="radio" name="cls" value="7" /><span>7組</span></label>
               </div>
             </fieldset>
 
-            <!-- Q2 名前 -->
             <div class="q">
-              <label class="q__title" for="name"><span class="q__num">2</span>お名前（卒業時の姓名）<span class="req">必須</span></label>
+              <label class="q__title" for="name"><span class="q__num">問2</span>お名前（卒業時の姓名）<em class="req">必須</em></label>
               <input class="input" type="text" id="name" name="name" autocomplete="name" required placeholder="例）武雄 太郎" />
-              <p class="q__help">名簿と照合するので、卒業時のお名前でお願いします。</p>
+              <p class="q__help">名簿と照らし合わせるので、卒業時のお名前で入力してください。</p>
               <details class="more">
                 <summary>苗字が変わった方はこちら</summary>
                 <input class="input" type="text" id="oldName" name="oldName" placeholder="現在の姓　例）佐賀" />
               </details>
             </div>
 
-            <!-- Q3 出欠 -->
             <fieldset class="q">
-              <legend class="q__title"><span class="q__num">3</span>同窓会に参加したいですか？<span class="req">必須</span></legend>
-              <div class="choices">
-                <label class="choice choice--yes">
-                  <input type="radio" name="attendance" value="参加" required />
-                  <span class="choice__body">
-                    <span class="choice__emoji" aria-hidden="true">🙌</span>
-                    <span class="choice__text"><b>参加したい</b><small>ぜひ行きたい！</small></span>
-                  </span>
-                </label>
-                <label class="choice choice--maybe">
-                  <input type="radio" name="attendance" value="未定" />
-                  <span class="choice__body">
-                    <span class="choice__emoji" aria-hidden="true">🤔</span>
-                    <span class="choice__text"><b>日程次第</b><small>都合が合えば行きたい</small></span>
-                  </span>
-                </label>
-                <label class="choice choice--no">
-                  <input type="radio" name="attendance" value="不参加" />
-                  <span class="choice__body">
-                    <span class="choice__emoji" aria-hidden="true">🙏</span>
-                    <span class="choice__text"><b>今回は不参加</b><small>また次の機会に</small></span>
-                  </span>
-                </label>
+              <legend class="q__title"><span class="q__num">問3</span>同窓会への参加<em class="req">必須</em></legend>
+              <div class="opts">
+                <label class="opt"><input type="radio" name="attendance" value="参加" required /><span><b>参加する</b><small>予定が合えば行きます</small></span></label>
+                <label class="opt"><input type="radio" name="attendance" value="未定" /><span><b>日程次第</b><small>日にちが決まってから考えたい</small></span></label>
+                <label class="opt"><input type="radio" name="attendance" value="不参加" /><span><b>今回は参加しない</b><small>また次の機会に</small></span></label>
               </div>
             </fieldset>
 
-            <!-- Q4 連絡先 -->
             <div class="q">
-              <label class="q__title" for="contact"><span class="q__num">4</span>連絡先<span class="req">必須</span></label>
-              <input class="input" type="text" id="contact" name="contact" required placeholder="LINE ID / メール / 電話 のどれか" />
-              <p class="q__help">🔒 幹事だけが確認し、同窓会の連絡にのみ使います。終了後に削除します。</p>
+              <label class="q__title" for="contact"><span class="q__num">問4</span>連絡先<em class="req">必須</em></label>
+              <input class="input" type="text" id="contact" name="contact" required placeholder="LINE ID・メール・電話のいずれか" />
+              <p class="q__help">幹事だけが見て、同窓会の連絡にだけ使います。会が終わったら削除します。</p>
             </div>
 
-            <!-- Q5 任意 -->
-            <fieldset class="q q--optional">
-              <legend class="q__title"><span class="q__num">5</span>参加できる日<span class="opt">複数OK</span></legend>
-              <div class="dates">
-                <label class="date"><input type="checkbox" name="dates" value="12/28(月)" /><span><b>12/28</b><small>月曜・夜</small></span></label>
-                <label class="date"><input type="checkbox" name="dates" value="12/29(火)" /><span><b>12/29</b><small>火曜・夜</small></span></label>
-                <label class="date"><input type="checkbox" name="dates" value="12/30(水)" /><span><b>12/30</b><small>水曜・夜</small></span></label>
+            <fieldset class="q">
+              <legend class="q__title"><span class="q__num">問5</span>参加できる日<em class="opt-mark">いくつでも</em></legend>
+              <div class="days">
+                <label class="day"><input type="checkbox" name="dates" value="12/28(月)" /><span><small>12月</small><b>28</b><small>月曜の夜</small></span></label>
+                <label class="day"><input type="checkbox" name="dates" value="12/29(火)" /><span><small>12月</small><b>29</b><small>火曜の夜</small></span></label>
+                <label class="day"><input type="checkbox" name="dates" value="12/30(水)" /><span><small>12月</small><b>30</b><small>水曜の夜</small></span></label>
               </div>
-              <p class="q__help">会場は武雄センチュリーホテル（予定）。一番多い日に決定します。</p>
             </fieldset>
 
-            <div class="q q--optional">
-              <label class="q__title" for="message"><span class="q__num">6</span>ひとこと<span class="opt">任意</span></label>
-              <textarea class="input" id="message" name="message" rows="3" placeholder="近況、先生への伝言、会いたい人など何でも"></textarea>
+            <div class="q">
+              <label class="q__title" for="message"><span class="q__num">問6</span>ひとこと<em class="opt-mark">任意</em></label>
+              <textarea class="input" id="message" name="message" rows="3" placeholder="近況や先生への伝言、会いたい人など"></textarea>
             </div>
 
-            <button type="submit" class="btn btn--primary btn--block" id="submitBtn">回答を送信する</button>
+            <button type="submit" class="btn btn--ink btn--block" id="submitBtn">回答を送信する</button>
             <p class="form__status" id="formStatus" role="status" aria-live="polite"></p>
           </form>
         </div>
 
-        <!-- 送信完了 -->
         <div class="thanks" id="payDone" hidden>
-          <div class="thanks__icon" aria-hidden="true">🌸</div>
-          <h3 class="thanks__title">回答ありがとう！</h3>
-          <p class="thanks__msg" id="thanksMsg">回答を受け付けました。</p>
-          <p class="thanks__count">現在の参加予定 <b id="thanksCount">–</b> 名</p>
-
-          <a class="btn btn--line btn--block" id="lineShare" href="#" target="_blank" rel="noopener">
-            LINEで友だちに知らせる
-          </a>
-          <p class="thanks__hint">まだ回答していない同級生にも広めてもらえると助かります！</p>
-          <button type="button" class="btn btn--ghost" id="againBtn">回答を修正する</button>
+          <div class="stamp" aria-hidden="true">受付</div>
+          <h3 class="thanks__title">回答を受け付けました</h3>
+          <p class="thanks__msg" id="thanksMsg"></p>
+          <p class="thanks__count">現在の参加予定　<b id="thanksCount">–</b> 名</p>
+          <a class="btn btn--line btn--block" id="lineShare" href="#" target="_blank" rel="noopener">LINEで同級生に知らせる</a>
+          <p class="thanks__hint">まだ回答していない人にも送ってもらえると助かります。</p>
+          <button type="button" class="btn btn--plain" id="againBtn">回答を修正する</button>
         </div>
       </div>
     </section>
 
-    <!-- ===== お支払い ===== -->
-    <section class="section section--tint" id="pay">
-      <div class="container container--narrow">
-        <p class="eyebrow">Payment</p>
-        <h2 class="section__title">お支払いについて</h2>
-        <ol class="steps">
-          <li><span class="steps__n">1</span><div><b>アンケート・受付に回答</b><small>このページのフォームから</small></div></li>
-          <li><span class="steps__n">2</span><div><b>PayPayで会費を送金</b><small id="payLinkArea"><span class="tbd">会費決定後にリンクを掲載します</span></small></div></li>
-          <li><span class="steps__n">3</span><div><b>幹事が入金を確認</b><small>確認でき次第、支払い済みとして記録します</small></div></li>
+    <section class="sec" id="pay">
+      <h2 class="sec__h"><span class="sec__n">四</span>会費のお支払い</h2>
+      <div class="sec__body">
+        <p class="sec__lead">会費が確定したら、このページでお知らせします。お支払いの流れは次のとおりです。</p>
+        <ol class="flow">
+          <li>アンケート（または本受付）に回答する</li>
+          <li>PayPayで会費を送る<span id="payLinkArea" class="muted">送金リンクは会費確定後に掲載します</span></li>
+          <li>幹事が入金を確認して、支払い済みとして記録します</li>
         </ol>
-        <p class="pay__note">PayPayが使えない方は当日受付での現金払いもOKです。</p>
+        <p class="muted small">PayPayを使っていない方は、当日の受付で現金でも大丈夫です。</p>
       </div>
     </section>
 
-    <!-- ===== 連絡先 ===== -->
-    <section class="section section--dark" id="contact">
-      <div class="container container--narrow">
-        <p class="eyebrow eyebrow--light">Contact</p>
-        <h2 class="section__title">幹事への連絡</h2>
-        <p class="section__lead section__lead--light">ご不明な点や、連絡が取れていない同級生・先生の情報などお気軽に。</p>
-        <div class="contacts">
-          <div class="contact">
-            <p class="contact__role">サイト・全体連絡</p>
-            <p class="contact__name">よしとみ</p>
-            <a class="contact__link" href="mailto:taiki_yoshitomi@frex.works">taiki_yoshitomi@frex.works</a>
-          </div>
-          <div class="contact">
-            <p class="contact__role">集客・声かけ</p>
-            <p class="contact__name">ひろき</p>
-            <span class="contact__tbd">連絡先 調整中</span>
-          </div>
-        </div>
+    <section class="sec" id="contact">
+      <h2 class="sec__h"><span class="sec__n">五</span>お問い合わせ</h2>
+      <div class="sec__body">
+        <p class="sec__lead">わからないことや、連絡がつかない同級生・先生の情報があれば教えてください。</p>
+        <dl class="facts">
+          <div><dt>よしとみ</dt><dd>サイト・全体の連絡<small><a href="mailto:taiki_yoshitomi@frex.works">taiki_yoshitomi@frex.works</a></small></dd></div>
+          <div><dt>ひろき</dt><dd>声かけ・集客<small>連絡先は追って掲載します</small></dd></div>
+        </dl>
       </div>
     </section>
   </main>
 
   <footer class="footer">
-    <p class="footer__title">武雄高校 同窓会 実行委員会</p>
-    <p class="footer__small">いただいた個人情報は本会の連絡のみに使用し、終了後に削除します。<br />名簿・個人の回答内容は幹事のみが閲覧します。</p>
-    <p class="footer__admin"><a href="admin.html">幹事用ログイン</a></p>
+    <p>武雄高校 平成27年3月卒業 同窓会幹事</p>
+    <p class="small">いただいた個人情報は本会の連絡にのみ使い、終了後に削除します。名簿と個人の回答は幹事だけが見ます。</p>
+    <p class="small"><a href="admin.html">幹事用ページ</a></p>
   </footer>
 
-  <!-- スマホ用：下部固定の回答ボタン（アンケートが見えている間は隠れる） -->
-  <a href="#rsvp" class="floating-cta" id="floatingCta">アンケートに答える</a>
+  <a href="#rsvp" class="floating-cta" id="floatingCta">参加アンケートに答える</a>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
