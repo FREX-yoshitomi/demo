@@ -146,9 +146,13 @@
             </fieldset>
 
             <div class="q">
-              <label class="q__title" for="contact"><span class="q__num">問4</span>連絡先<em class="req">必須</em></label>
-              <input class="input" type="text" id="contact" name="contact" required placeholder="LINE ID・メール・電話のいずれか" />
-              <p class="q__help">幹事だけが見て、同窓会の連絡にだけ使います。会が終わったら削除します。</p>
+              <p class="q__title" id="contactTitle"><span class="q__num">問4</span>連絡先<em class="req">どれか1つ必須</em></p>
+              <div class="contact-fields" role="group" aria-labelledby="contactTitle">
+                <label class="cf" for="cLine"><span>LINE</span><input class="input" type="text" id="cLine" name="line" placeholder="LINEの名前かID" /></label>
+                <label class="cf" for="cMail"><span>メール</span><input class="input" type="email" id="cMail" name="email" autocomplete="email" inputmode="email" placeholder="例）takeo@example.com" /></label>
+                <label class="cf" for="cTel"><span>電話</span><input class="input" type="tel" id="cTel" name="tel" autocomplete="tel" inputmode="tel" placeholder="例）090-1234-5678" /></label>
+              </div>
+              <p class="q__help">入れられるものだけで大丈夫です。幹事だけが見て、同窓会の連絡にだけ使います。会が終わったら削除します。</p>
             </div>
 
             <fieldset class="q">
@@ -172,7 +176,9 @@
 
         <div class="thanks" id="payDone" hidden>
           <div class="stamp" aria-hidden="true">受付</div>
-          <h3 class="thanks__title">回答を受け付けました</h3>
+          <h3 class="thanks__title">回答ありがとうございます</h3>
+          <p class="save-state" id="saveState" role="status" aria-live="polite"></p>
+          <button type="button" class="btn btn--ink" id="retryBtn" hidden>もう一度送る</button>
           <p class="thanks__msg" id="thanksMsg"></p>
           <p class="thanks__count">現在の参加予定　<b id="thanksCount">–</b> 名</p>
           <a class="btn btn--line btn--block" id="lineShare" href="#" target="_blank" rel="noopener">LINEで同級生に知らせる</a>
