@@ -19,8 +19,6 @@ bindFloatingCta();
 
 // ---------- 参加人数カウンター ----------
 async function loadStats() {
-  const sub = document.getElementById("cntSub");
-
   if (!isConnected()) {
     renderCounter(0, 0, {});
     return;
@@ -31,10 +29,9 @@ async function loadStats() {
     if (d.result !== "success") throw new Error(d.message || "stats error");
     renderCounter(d.total, d.pending, d.byClass || {});
   } catch (err) {
+    // 集計が取れないときも、事前に参加を伝えてくれた人数は表示する
     console.error(err);
-    document.getElementById("cntTotal").textContent = "–";
-    sub.textContent = "集計は準備中です";
-    document.getElementById("cntClasses").innerHTML = "";
+    renderCounter(0, 0, {});
   }
 }
 
