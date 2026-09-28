@@ -281,6 +281,10 @@ textarea.input { resize: vertical; }
 .thanks__count b { font-family: var(--mincho); font-size: 1.5rem; }
 .thanks__hint { font-size: .76rem; color: var(--muted); margin: 8px 0 18px; }
 
+/* お問い合わせ */
+.plain-list { margin: 0; padding-left: 1.2em; }
+.plain-list li { padding: 4px 0; font-size: .92rem; color: var(--ink-2); }
+
 /* ---------- お支払い ---------- */
 .flow { margin: 0 0 14px; padding-left: 1.4em; }
 .flow li { padding: 6px 0; }
