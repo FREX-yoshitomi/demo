@@ -14,8 +14,10 @@ const APP_CONFIG = {
   payPayLink: "",
   fee: "",
   // 参加アンケートの〆切（空にするとバナー非表示）。表示用ラベルと、カウントダウン用の日時
-  surveyDeadline: "10/4（日）23:59",
-  surveyDeadlineAt: "2026-10-04T23:59:00+09:00",
+  surveyDeadline: "10/18（日）23:59",
+  surveyDeadlineAt: "2026-10-18T23:59:00+09:00",
+  // アンケート以外ですでに参加を伝えてくれている人数（トップの人数に足して表示）
+  preAttendees: 10,
 };
 
 /** バックエンド（Apps Script）が接続済みかどうか */

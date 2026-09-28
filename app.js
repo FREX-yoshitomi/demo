@@ -22,8 +22,7 @@ async function loadStats() {
   const sub = document.getElementById("cntSub");
 
   if (!isConnected()) {
-    renderCounter(27, 6, { 1: 4, 2: 5, 3: 3, 4: 4, 5: 4, 6: 3, 7: 4 });
-    sub.textContent = "（デモ表示）ほか 日程次第 6名";
+    renderCounter(0, 0, {});
     return;
   }
   try {
@@ -39,15 +38,18 @@ async function loadStats() {
   }
 }
 
-function renderCounter(total, pending, byClass) {
+function renderCounter(surveyTotal, pending, byClass) {
+  const pre = Number(APP_CONFIG.preAttendees) || 0;
+  const total = surveyTotal + pre;
   lastTotal = total;
   countUp(document.getElementById("cntTotal"), total);
   document.getElementById("cntSub").textContent =
-    pending > 0 ? `ほか 日程次第で検討中 ${pending}名` : "回答するとここに反映されます";
+    [pre ? `事前に参加を伝えてくれた${pre}名を含む` : "", pending > 0 ? `ほか日程次第 ${pending}名` : ""].filter(Boolean).join("／") || "回答するとここに反映されます";
 
   const classes = ["1", "2", "3", "4", "5", "6", "7"];
   const max = Math.max(1, ...classes.map((c) => byClass[c] || 0));
   const wrap = document.getElementById("cntClasses");
+  wrap.hidden = surveyTotal === 0;
   wrap.innerHTML = classes.map((c) => {
     const n = byClass[c] || 0;
     return `<div class="bar">
