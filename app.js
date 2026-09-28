@@ -7,7 +7,6 @@
 
 const form = document.getElementById("rsvpForm");
 const statusEl = document.getElementById("formStatus");
-const submitBtn = document.getElementById("submitBtn");
 const REQUIRED = ["cls", "name", "attendance", "contact"];
 let lastTotal = null;
 
@@ -115,14 +114,14 @@ function bindFormUx() {
 
 function updateProgress() {
   const fd = new FormData(form);
-  const filled = REQUIRED.filter((k) => String(fd.get(k) || "").trim()).length;
+  const filled = REQUIRED.filter((k) => (k === "contact" ? hasContact(fd) : String(fd.get(k) || "").trim())).length;
   document.getElementById("formProgress").style.width = (filled / REQUIRED.length) * 100 + "%";
   document.getElementById("formProgressText").textContent =
     filled === REQUIRED.length ? "必須項目はすべて入力済みです" : `必須 ${filled} / ${REQUIRED.length}`;
 }
 
 // ---------- 送信 ----------
-form.addEventListener("submit", async (e) => {
+form.addEventListener("submit", (e) => {
   e.preventDefault();
   clearStatus();
 
@@ -132,43 +131,73 @@ form.addEventListener("submit", async (e) => {
       (firstInvalid.closest(".q") || firstInvalid).scrollIntoView({ behavior: "smooth", block: "center" });
       if (firstInvalid.type !== "radio") firstInvalid.focus({ preventScroll: true });
     }
-    setStatus("未回答の必須項目があります。", "error");
+    setStatus(firstInvalid && firstInvalid.type === "email" ? "メールアドレスの形を確認してください。" : "未回答の必須項目があります。", "error");
+    return;
+  }
+  const fd = new FormData(form);
+  if (!hasContact(fd)) {
+    document.getElementById("cLine").closest(".q").scrollIntoView({ behavior: "smooth", block: "center" });
+    document.getElementById("cLine").focus({ preventScroll: true });
+    setStatus("連絡先をどれか1つ入れてください。", "error");
     return;
   }
 
-  const fd = new FormData(form);
   const data = Object.fromEntries(fd.entries());
   data.dates = fd.getAll("dates").join("・");
-  setLoading(true);
+  data.contact = [
+    data.line && `LINE: ${data.line.trim()}`,
+    data.email && `メール: ${data.email.trim()}`,
+    data.tel && `電話: ${data.tel.trim()}`,
+  ].filter(Boolean).join(" / ");
 
-  if (!isConnected()) {
-    console.table(data);
-    setLoading(false);
-    showThanks(data, { matched: true }, true);
-    return;
-  }
-
-  try {
-    const res = await apiCall("rsvp", data);
-    showThanks(data, res, false);
-    loadStats();
-  } catch (err) {
-    console.error(err);
-    setStatus("送信に失敗しました。通信環境をご確認のうえ、もう一度お試しください。", "error");
-  } finally {
-    setLoading(false);
-  }
+  // 送信を待たずに完了画面を出し、保存は裏で進める
+  showThanks(data, !isConnected());
+  if (isConnected()) save(data);
 });
 
-function showThanks(data, res, isDemo) {
+let saving = false;
+async function save(data) {
+  const state = document.getElementById("saveState");
+  const retry = document.getElementById("retryBtn");
+  retry.hidden = true;
+  state.className = "save-state";
+  state.textContent = "回答を保存しています…（数秒かかります）";
+  saving = true;
+  try {
+    const res = await apiCall("rsvp", data);
+    state.classList.add("is-saved");
+    state.textContent = res.matched ? "保存しました" : "保存しました（名簿の確認は幹事が行います）";
+    await loadStats();
+    document.getElementById("thanksCount").textContent = lastTotal ?? "–";
+  } catch (err) {
+    console.error(err);
+    state.classList.add("is-error");
+    state.textContent = "保存できませんでした。通信状況を確かめて、下のボタンでもう一度送ってください。";
+    retry.hidden = false;
+    retry.onclick = () => save(data);
+  } finally {
+    saving = false;
+  }
+}
+window.addEventListener("beforeunload", (e) => {
+  if (saving) { e.preventDefault(); e.returnValue = ""; }
+});
+
+function hasContact(fd) {
+  return ["line", "email", "tel"].some((k) => String(fd.get(k) || "").trim());
+}
+
+function showThanks(data, isDemo) {
   const msg = {
     "参加": "会費が決まったら事前入金のご案内をします。入金を確認できた方から、参加者のLINEグループに招待します。",
     "未定": "日程が決まったらすぐにお知らせします。",
     "不参加": "教えてくれてありがとう。また次の機会に。",
   }[data.attendance] || "";
-  document.getElementById("thanksMsg").textContent =
-    (isDemo ? "【テストモード】保存はされていません。" : "") +
-    msg + (res.matched ? "" : "（名簿の確認は幹事が行います）");
+  document.getElementById("thanksMsg").textContent = msg;
+  const state = document.getElementById("saveState");
+  state.className = "save-state";
+  state.textContent = isDemo ? "【テストモード】保存はされていません。" : "";
+  document.getElementById("retryBtn").hidden = true;
   document.getElementById("thanksCount").textContent = lastTotal ?? "–";
 
   const url = location.href.split("#")[0];
@@ -196,10 +225,6 @@ function bindFloatingCta() {
 }
 
 // ---------- ユーティリティ ----------
-function setLoading(isLoading) {
-  submitBtn.disabled = isLoading;
-  submitBtn.textContent = isLoading ? "送信中…" : "回答を送信する";
-}
 function setStatus(message, type) {
   statusEl.textContent = message;
   statusEl.classList.toggle("is-error", type === "error");
