@@ -94,7 +94,7 @@ function applySurveyNotice() {
 function applyPayConfig() {
   if (APP_CONFIG.fee) {
     document.getElementById("feeValue").textContent = APP_CONFIG.fee;
-    document.getElementById("feeNote").textContent = "PayPay または当日現金でお支払いください";
+    document.getElementById("feeNote").textContent = "事前にPayPayでお支払いください";
   }
   if (APP_CONFIG.payPayLink) {
     document.getElementById("payLinkArea").innerHTML =
@@ -165,7 +165,7 @@ form.addEventListener("submit", async (e) => {
 
 function showThanks(data, res, isDemo) {
   const msg = {
-    "参加": "当日会えるのを楽しみにしています。",
+    "参加": "会費が決まったら事前入金のご案内をします。入金を確認できた方から、参加者のLINEグループに招待します。",
     "未定": "日程が決まったらすぐにお知らせします。",
     "不参加": "教えてくれてありがとう。また次の機会に。",
   }[data.attendance] || "";
