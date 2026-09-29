@@ -211,7 +211,6 @@ textarea.input { resize: vertical; }
 .save-state { margin: 6px 0 0; font-size: .86rem; min-height: 1.5em; color: var(--muted); }
 .save-state.is-saved { color: #1f7a4c; font-weight: 700; }
 .save-state.is-error { color: var(--shu); font-weight: 700; }
-#retryBtn { margin: 6px 0 4px; }
 
 /* 共通：隠したラジオ・チェック */
 .cell input, .opt input, .day input { position: absolute; opacity: 0; pointer-events: none; }
@@ -265,6 +264,7 @@ textarea.input { resize: vertical; }
 .form .btn { margin-top: 26px; }
 .form__status { margin: 10px 0 0; text-align: center; font-size: .86rem; font-weight: 700; min-height: 1.4em; }
 .form__status.is-error { color: var(--shu); }
+.form__status.is-info { color: var(--ink-2); font-weight: 500; }
 
 /* 送信完了 */
 .thanks[hidden] { display: none; }
