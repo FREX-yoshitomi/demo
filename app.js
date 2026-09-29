@@ -150,35 +150,61 @@ form.addEventListener("submit", (e) => {
     data.tel && `電話: ${data.tel.trim()}`,
   ].filter(Boolean).join(" / ");
 
-  // 送信を待たずに完了画面を出し、保存は裏で進める
-  showThanks(data, !isConnected());
-  if (isConnected()) save(data);
+  send(data);
 });
 
+// ---------- 送信（保存できるまで完了扱いにしない） ----------
+const PENDING_KEY = "takeo_reunion_pending";
 let saving = false;
-async function save(data) {
-  const state = document.getElementById("saveState");
-  const retry = document.getElementById("retryBtn");
-  retry.hidden = true;
-  state.className = "save-state";
-  state.textContent = "回答を保存しています…（数秒かかります）";
+
+function setPending(data) {
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify(data)); } catch (e) {}
+}
+function getPending() {
+  try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "null"); } catch (e) { return null; }
+}
+function clearPending() {
+  try { localStorage.removeItem(PENDING_KEY); } catch (e) {}
+}
+
+async function send(data) {
+  const btn = document.getElementById("submitBtn");
+  if (!isConnected()) { showThanks(data, true, null); return; }
+
+  setPending(data); // 途中で閉じられても、次に開いたときに送り直せるようにしておく
   saving = true;
+  btn.disabled = true;
+  btn.textContent = "送信しています…";
+  setStatus("数秒かかります。画面を閉じずにお待ちください。", "info");
   try {
     const res = await apiCall("rsvp", data);
-    state.classList.add("is-saved");
-    state.textContent = res.matched ? "保存しました" : "保存しました（名簿の確認は幹事が行います）";
-    await loadStats();
-    document.getElementById("thanksCount").textContent = lastTotal ?? "–";
+    clearPending();
+    showThanks(data, false, res);
+    loadStats().then(() => { document.getElementById("thanksCount").textContent = lastTotal ?? "–"; });
   } catch (err) {
     console.error(err);
-    state.classList.add("is-error");
-    state.textContent = "保存できませんでした。通信状況を確かめて、下のボタンでもう一度送ってください。";
-    retry.hidden = false;
-    retry.onclick = () => save(data);
+    setStatus("送信できませんでした。電波の良いところで、もう一度「回答を送信する」を押してください。", "error");
   } finally {
     saving = false;
+    btn.disabled = false;
+    btn.textContent = "回答を送信する";
   }
 }
+
+// 前回、送信の途中で閉じられた回答があれば送り直す
+(async function resendPending() {
+  const pending = getPending();
+  if (!pending || !isConnected()) return;
+  try {
+    const res = await apiCall("rsvp", pending);
+    clearPending();
+    showThanks(pending, false, res, "前回の回答が送信できていなかったので、いま送信しました。");
+    loadStats().then(() => { document.getElementById("thanksCount").textContent = lastTotal ?? "–"; });
+  } catch (err) {
+    console.error(err);
+  }
+})();
+
 window.addEventListener("beforeunload", (e) => {
   if (saving) { e.preventDefault(); e.returnValue = ""; }
 });
@@ -187,7 +213,7 @@ function hasContact(fd) {
   return ["line", "email", "tel"].some((k) => String(fd.get(k) || "").trim());
 }
 
-function showThanks(data, isDemo) {
+function showThanks(data, isDemo, res, note) {
   const msg = {
     "参加": "会費が決まったら事前入金のご案内をします。入金を確認できた方から、参加者のLINEグループに招待します。",
     "未定": "日程が決まったらすぐにお知らせします。",
@@ -195,9 +221,10 @@ function showThanks(data, isDemo) {
   }[data.attendance] || "";
   document.getElementById("thanksMsg").textContent = msg;
   const state = document.getElementById("saveState");
-  state.className = "save-state";
-  state.textContent = isDemo ? "【テストモード】保存はされていません。" : "";
-  document.getElementById("retryBtn").hidden = true;
+  state.className = "save-state" + (isDemo ? "" : " is-saved");
+  state.textContent = isDemo
+    ? "【テストモード】保存はされていません。"
+    : (note || "保存しました。この画面は閉じて大丈夫です。") + (res && res.matched === false ? "（名簿の確認は幹事が行います）" : "");
   document.getElementById("thanksCount").textContent = lastTotal ?? "–";
 
   const url = location.href.split("#")[0];
@@ -206,6 +233,7 @@ function showThanks(data, isDemo) {
 
   form.reset();
   updateProgress();
+  clearStatus();
   document.getElementById("surveyCard").hidden = true;
   const done = document.getElementById("payDone");
   done.hidden = false;
@@ -229,10 +257,11 @@ function setStatus(message, type) {
   statusEl.textContent = message;
   statusEl.classList.toggle("is-error", type === "error");
   statusEl.classList.toggle("is-success", type === "success");
+  statusEl.classList.toggle("is-info", type === "info");
 }
 function clearStatus() {
   statusEl.textContent = "";
-  statusEl.classList.remove("is-error", "is-success");
+  statusEl.classList.remove("is-error", "is-success", "is-info");
 }
 function escapeHtml(v) {
   return String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
