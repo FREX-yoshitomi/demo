@@ -1,3 +1,6 @@
+> **このサイトは https://takeo-dousoukai.github.io/ に移転しました。**
+> 最新のコードは https://github.com/takeo-dousoukai/takeo-dousoukai.github.io にあります。ここは旧URLからの転送だけを残しています。
+
 # 武雄高校 同窓会 サイト（v2・名簿連動型）
 
 佐賀県立武雄高等学校 **2015年3月卒業 世代**（3年1組〜7組）の同窓会サイト。

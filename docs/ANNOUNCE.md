@@ -1,6 +1,6 @@
 # 告知文
 
-コピーしてそのまま送れる文面です。URL は https://frex-yoshitomi.github.io/demo/
+コピーしてそのまま送れる文面です。URL は https://takeo-dousoukai.github.io/
 
 ---
 
@@ -31,7 +31,7 @@
 場所は武雄センチュリーホテル、日にちは 12/28・29・30 の夜のどれかにする予定で、先生たちも呼ぶつもりです。
 
 何人くらい来れそうか知りたいので、下のアンケートに答えてください。1分くらいで終わります。
-https://frex-yoshitomi.github.io/demo/
+https://takeo-dousoukai.github.io/
 
 締め切りは 10/18（日）です。来れない人も「参加しない」で答えてもらえると助かります。
 
@@ -53,7 +53,7 @@ https://frex-yoshitomi.github.io/demo/
 場所は武雄センチュリーホテルで、日にちは 12/28・29・30 の夜のどれかにする予定です。先生たちも呼ぶつもりです。
 
 まずは何人くらい来れそうか知りたいので、下のアンケートに答えてください。1分くらいで終わります。
-https://frex-yoshitomi.github.io/demo/
+https://takeo-dousoukai.github.io/
 
 締め切りは 10/18（日）です。来れない人も「参加しない」で回答してもらえると助かります。
 他のクラスの人にも回してもらえるとありがたいです。
@@ -66,7 +66,7 @@ https://frex-yoshitomi.github.io/demo/
 ```
 同窓会アンケート、10/18（日）までです。
 まだの人はここから回答お願いします。
-https://frex-yoshitomi.github.io/demo/
+https://takeo-dousoukai.github.io/
 
 いま◯人が参加予定です（ページの上で人数が見られます）。
 ```
