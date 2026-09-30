@@ -29,13 +29,15 @@ function isConnected() {
  * Apps Script への共通API呼び出し。
  * text/plain で送ることで CORS プリフライトを避け、レスポンス(JSON)も読める。
  */
-async function apiCall(action, payload = {}) {
+async function apiCall(action, payload = {}, options = {}) {
   if (!isConnected()) throw new Error("ENDPOINT_NOT_SET");
   const res = await fetch(APP_CONFIG.endpoint, {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
     body: JSON.stringify({ action, ...payload }),
     redirect: "follow",
+    // keepalive: ページを閉じても送信を最後まで続ける（回答の送信で使う）
+    keepalive: Boolean(options.keepalive),
   });
   if (!res.ok) throw new Error("HTTP " + res.status);
   const data = await res.json();
