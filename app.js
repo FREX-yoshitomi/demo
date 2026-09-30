@@ -153,9 +153,10 @@ form.addEventListener("submit", (e) => {
   send(data);
 });
 
-// ---------- 送信（保存できるまで完了扱いにしない） ----------
+// ---------- 送信 ----------
+// 押した瞬間に完了画面を出す。送信は keepalive でページを閉じても続き、
+// 保存が確認できるまでは端末にも回答を残しておき、届いていなければ次回開いたときに送り直す。
 const PENDING_KEY = "takeo_reunion_pending";
-let saving = false;
 
 function setPending(data) {
   try { localStorage.setItem(PENDING_KEY, JSON.stringify(data)); } catch (e) {}
@@ -167,53 +168,62 @@ function clearPending() {
   try { localStorage.removeItem(PENDING_KEY); } catch (e) {}
 }
 
-async function send(data) {
-  const btn = document.getElementById("submitBtn");
-  if (!isConnected()) { showThanks(data, true, null); return; }
+function send(data) {
+  if (!isConnected()) { showThanks(data, true); return; }
+  setPending(data);
+  bumpCounter(data);
+  showThanks(data, false);
+  deliver(data);
+}
 
-  setPending(data); // 途中で閉じられても、次に開いたときに送り直せるようにしておく
-  saving = true;
-  btn.disabled = true;
-  btn.textContent = "送信しています…";
-  setStatus("数秒かかります。画面を閉じずにお待ちください。", "info");
+async function deliver(data, note) {
+  const state = document.getElementById("saveState");
+  const retry = document.getElementById("retryBtn");
+  retry.hidden = true;
   try {
-    const res = await apiCall("rsvp", data);
+    const res = await apiCall("rsvp", data, { keepalive: true });
     clearPending();
-    showThanks(data, false, res);
+    state.className = "save-state is-saved";
+    state.textContent = (note || "記録しました。この画面は閉じて大丈夫です。") +
+      (res.matched === false ? "（名簿の確認は幹事が行います）" : "");
     loadStats().then(() => { document.getElementById("thanksCount").textContent = lastTotal ?? "–"; });
   } catch (err) {
     console.error(err);
-    setStatus("送信できませんでした。電波の良いところで、もう一度「回答を送信する」を押してください。", "error");
-  } finally {
-    saving = false;
-    btn.disabled = false;
-    btn.textContent = "回答を送信する";
+    state.className = "save-state is-error";
+    state.textContent = "通信がうまくいきませんでした。下のボタンを押すか、あとでこのページを開き直すと自動で送り直します。";
+    retry.hidden = false;
+    retry.onclick = () => {
+      state.className = "save-state";
+      state.textContent = "送り直しています…";
+      deliver(data);
+    };
   }
 }
 
-// 前回、送信の途中で閉じられた回答があれば送り直す
-(async function resendPending() {
+// 参加の回答なら、保存を待たずにトップの人数を1人増やして見せる
+function bumpCounter(data) {
+  if (data.attendance !== "参加" || lastTotal == null) return;
+  lastTotal += 1;
+  document.getElementById("cntTotal").textContent = lastTotal;
+}
+
+// 前回届いていなかった回答があれば送り直す
+(function resendPending() {
   const pending = getPending();
   if (!pending || !isConnected()) return;
-  try {
-    const res = await apiCall("rsvp", pending);
-    clearPending();
-    showThanks(pending, false, res, "前回の回答が送信できていなかったので、いま送信しました。");
-    loadStats().then(() => { document.getElementById("thanksCount").textContent = lastTotal ?? "–"; });
-  } catch (err) {
-    console.error(err);
-  }
+  showThanks(pending, false);
+  const state = document.getElementById("saveState");
+  state.className = "save-state";
+  state.textContent = "前回の回答を送り直しています…";
+  deliver(pending, "前回の回答が届いていなかったので、いま送り直して記録しました。");
 })();
 
-window.addEventListener("beforeunload", (e) => {
-  if (saving) { e.preventDefault(); e.returnValue = ""; }
-});
 
 function hasContact(fd) {
   return ["line", "email", "tel"].some((k) => String(fd.get(k) || "").trim());
 }
 
-function showThanks(data, isDemo, res, note) {
+function showThanks(data, isDemo) {
   const msg = {
     "参加": "会費が決まったら事前入金のご案内をします。入金を確認できた方から、参加者のLINEグループに招待します。",
     "未定": "日程が決まったらすぐにお知らせします。",
@@ -221,10 +231,9 @@ function showThanks(data, isDemo, res, note) {
   }[data.attendance] || "";
   document.getElementById("thanksMsg").textContent = msg;
   const state = document.getElementById("saveState");
-  state.className = "save-state" + (isDemo ? "" : " is-saved");
-  state.textContent = isDemo
-    ? "【テストモード】保存はされていません。"
-    : (note || "保存しました。この画面は閉じて大丈夫です。") + (res && res.matched === false ? "（名簿の確認は幹事が行います）" : "");
+  state.className = "save-state";
+  state.textContent = isDemo ? "【テストモード】保存はされていません。" : "記録しています…（この画面は閉じても大丈夫です）";
+  document.getElementById("retryBtn").hidden = true;
   document.getElementById("thanksCount").textContent = lastTotal ?? "–";
 
   const url = location.href.split("#")[0];
