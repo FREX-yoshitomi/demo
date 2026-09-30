@@ -1,228 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>武雄高校 同窓会のご案内（平成27年3月卒業）</title>
-  <meta name="description" content="佐賀県立武雄高等学校 平成27年3月卒業（3年1組〜7組）の同窓会のご案内です。まずは参加アンケートにご回答ください。" />
-  <meta name="theme-color" content="#f5f1e8" />
-
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="武雄高校 同窓会のご案内（平成27年3月卒業）" />
-  <meta property="og:description" content="12月末に武雄で同窓会を開きます。まずは参加アンケートにご回答ください（10/18〆切）。" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>武雄高校 同窓会</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://takeo-dousoukai.github.io/">
+<script src="config.js"></script>
+<script>
+  // サイトは https://takeo-dousoukai.github.io/ に移転しました。
+  // この旧URLに未送信の回答が残っていれば、先に送り直してから移動する。
+  (function () {
+    try {
+      var raw = localStorage.getItem("takeo_reunion_pending");
+      if (raw && typeof apiCall === "function") {
+        apiCall("rsvp", JSON.parse(raw), { keepalive: true })
+          .then(function () { try { localStorage.removeItem("takeo_reunion_pending"); } catch (e) {} })
+          .catch(function () {});
+      }
+    } catch (e) {}
+    location.replace("https://takeo-dousoukai.github.io/" + location.search + location.hash);
+  })();
+</script>
+<style>
+  body { margin: 0; background: #f5f1e8; color: #1f2430; font-family: serif; padding: 48px 16px; text-align: center; }
+  a { color: #b3402a; }
+</style>
 </head>
 <body>
-
-  <header class="hero">
-    <div class="topline">
-      <span>佐賀県立武雄高等学校</span>
-      <span class="topline__right" id="surveyNotice" hidden>アンケート〆切 <b id="surveyDeadlineLabel"></b>（<span id="surveyCountdown"></span>）</span>
-    </div>
-
-    <div class="hero__body">
-      <div class="hero__titles">
-        <h1 class="v-title">同窓会のご案内</h1>
-        <p class="v-sub">平成二十七年三月卒業　三年一組〜七組</p>
-      </div>
-
-      <div class="hero__main">
-        <p class="hero__lead">
-          卒業して十二年。<br />
-          年末、武雄で集まりましょう。<br />
-          先生方もお招きする予定です。
-        </p>
-
-        <div class="count">
-          <p class="count__label">現在の参加予定</p>
-          <p class="count__num"><span id="cntTotal">–</span><small>名</small></p>
-          <p class="count__sub" id="cntSub">集計を読み込み中…</p>
-          <div class="bars" id="cntClasses" aria-label="組ごとの参加人数"></div>
-        </div>
-
-        <a href="#rsvp" class="btn btn--ink btn--block">参加アンケートに答える</a>
-        <p class="hero__note">出席・欠席どちらの方もご回答ください。<br />所要時間は1分ほどです。</p>
-      </div>
-    </div>
-
-    <!-- 校舎：assets/school.jpg があれば写真、なければ線画 -->
-    <figure class="school" id="schoolFigure">
-      <img class="school__img" src="assets/school.jpg" alt="武雄高校の校舎"
-           onload="this.parentNode.classList.add('has-photo')" onerror="this.remove()" />
-      <svg class="school__art" viewBox="0 0 800 150" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
-        <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">
-          <path d="M0 149.5 H800" />
-          <path d="M40 150 V104 H170 V88 H270 V104 H320" />
-          <path d="M320 150 V66 H356 V32 L381 16 L406 32 V66 H442 V150" />
-          <path d="M369 38 V58 M377 38 V58 M385 38 V58 M393 38 V58" />
-          <path d="M442 150 V78 H580 V94 H690 V110 H760 V150" />
-          <path d="M338 150 V126 Q381 96 424 126 V150" />
-          <path d="M60 118 H300 M460 100 H570 M590 116 H680" stroke-dasharray="4 7" />
-        </g>
-      </svg>
-      <figcaption>武雄高校 校舎</figcaption>
-    </figure>
-  </header>
-
-  <main>
-    <section class="sec" id="intro">
-      <h2 class="sec__h"><span class="sec__n">一</span>ご挨拶</h2>
-      <div class="sec__body letter">
-        <figure class="snap">
-          <img src="assets/school2.jpg" alt="武雄高校の校舎" onerror="this.parentNode.remove()" />
-          <figcaption>いまの武雄高校</figcaption>
-        </figure>
-        <p>ご無沙汰しています。武雄高校を平成27年3月に卒業した同級生で、同窓会を企画しています。</p>
-        <p>卒業してから12年、みんな30歳になりました。久しぶりに当時の顔ぶれで集まれたらと思い、声をかけています。当時お世話になった先生方もお招きする予定です。</p>
-        <p>日程と人数を決めるために、まずは下のアンケートで今の予定を教えてください。</p>
-        <p class="letter__sign">同窓会 幹事一同</p>
-      </div>
-    </section>
-
-    <section class="sec" id="details">
-      <h2 class="sec__h"><span class="sec__n">二</span>開催概要</h2>
-      <div class="sec__body">
-        <dl class="facts">
-          <div><dt>日程</dt><dd>12月28日（月）・29日（火）・30日（水）のいずれかの夜<small>アンケートで一番多かった日に決めます</small></dd></div>
-          <div><dt>会場</dt><dd>武雄センチュリーホテル（予定）<small>円卓の洋室で、着席して食事をします</small></dd></div>
-          <div><dt>会費</dt><dd><span id="feeValue">6,000〜9,000円ほど（予定）</span><small id="feeNote">料理・飲み放題込み。人数が決まってから確定します</small></dd></div>
-          <div><dt>対象</dt><dd>平成27年3月卒業　3年1組〜7組<small>当時の先生方もお招きします</small></dd></div>
-        </dl>
-
-        <h3 class="sub-h">これからの予定</h3>
-        <ol class="plan">
-          <li class="is-now"><span>9/28〜10/18</span>参加アンケート<em>いまここ</em></li>
-          <li><span>10月下旬</span>日程を決めて、会場を予約</li>
-          <li><span>11月</span>正式なご案内と会費のお支払い</li>
-          <li><span>12月末</span>同窓会 当日</li>
-        </ol>
-      </div>
-    </section>
-
-    <section class="sec" id="rsvp">
-      <h2 class="sec__h"><span class="sec__n">三</span>参加アンケート</h2>
-      <div class="sec__body">
-        <p class="sec__lead">今の予定で大丈夫です。あとから何度でも回答し直せます。</p>
-
-        <div id="surveyCard">
-          <div class="progress" aria-hidden="true"><div class="progress__bar" id="formProgress"></div></div>
-          <p class="progress__text" id="formProgressText">必須 0 / 4</p>
-
-          <form id="rsvpForm" class="form" novalidate>
-            <fieldset class="q">
-              <legend class="q__title"><span class="q__num">問1</span>卒業時のクラス<em class="req">必須</em></legend>
-              <div class="cells">
-                <label class="cell"><input type="radio" name="cls" value="1" required /><span>1組</span></label>
-                <label class="cell"><input type="radio" name="cls" value="2" /><span>2組</span></label>
-                <label class="cell"><input type="radio" name="cls" value="3" /><span>3組</span></label>
-                <label class="cell"><input type="radio" name="cls" value="4" /><span>4組</span></label>
-                <label class="cell"><input type="radio" name="cls" value="5" /><span>5組</span></label>
-                <label class="cell"><input type="radio" name="cls" value="6" /><span>6組</span></label>
-                <label class="cell"><input type="radio" name="cls" value="7" /><span>7組</span></label>
-              </div>
-            </fieldset>
-
-            <div class="q">
-              <label class="q__title" for="name"><span class="q__num">問2</span>お名前（卒業時の姓名）<em class="req">必須</em></label>
-              <input class="input" type="text" id="name" name="name" autocomplete="name" required placeholder="例）武雄 太郎" />
-              <p class="q__help">名簿と照らし合わせるので、卒業時のお名前で入力してください。</p>
-              <details class="more">
-                <summary>苗字が変わった方はこちら</summary>
-                <input class="input" type="text" id="oldName" name="oldName" placeholder="現在の姓　例）佐賀" />
-              </details>
-            </div>
-
-            <fieldset class="q">
-              <legend class="q__title"><span class="q__num">問3</span>同窓会への参加<em class="req">必須</em></legend>
-              <div class="opts">
-                <label class="opt"><input type="radio" name="attendance" value="参加" required /><span><b>参加する</b><small>予定が合えば行きます</small></span></label>
-                <label class="opt"><input type="radio" name="attendance" value="未定" /><span><b>日程次第</b><small>日にちが決まってから考えたい</small></span></label>
-                <label class="opt"><input type="radio" name="attendance" value="不参加" /><span><b>今回は参加しない</b><small>また次の機会に</small></span></label>
-              </div>
-            </fieldset>
-
-            <div class="q">
-              <p class="q__title" id="contactTitle"><span class="q__num">問4</span>連絡先<em class="req">どれか1つ必須</em></p>
-              <div class="contact-fields" role="group" aria-labelledby="contactTitle">
-                <label class="cf" for="cLine"><span>LINE</span><input class="input" type="text" id="cLine" name="line" placeholder="LINEの名前かID" /></label>
-                <label class="cf" for="cMail"><span>メール</span><input class="input" type="email" id="cMail" name="email" autocomplete="email" inputmode="email" placeholder="例）takeo@example.com" /></label>
-                <label class="cf" for="cTel"><span>電話</span><input class="input" type="tel" id="cTel" name="tel" autocomplete="tel" inputmode="tel" placeholder="例）090-1234-5678" /></label>
-              </div>
-              <p class="q__help">入れられるものだけで大丈夫です。幹事だけが見て、同窓会の連絡にだけ使います。会が終わったら削除します。</p>
-            </div>
-
-            <fieldset class="q">
-              <legend class="q__title"><span class="q__num">問5</span>参加できる日<em class="opt-mark">いくつでも</em></legend>
-              <div class="days">
-                <label class="day"><input type="checkbox" name="dates" value="12/28(月)" /><span><small>12月</small><b>28</b><small>月曜の夜</small></span></label>
-                <label class="day"><input type="checkbox" name="dates" value="12/29(火)" /><span><small>12月</small><b>29</b><small>火曜の夜</small></span></label>
-                <label class="day"><input type="checkbox" name="dates" value="12/30(水)" /><span><small>12月</small><b>30</b><small>水曜の夜</small></span></label>
-              </div>
-            </fieldset>
-
-            <div class="q">
-              <label class="q__title" for="message"><span class="q__num">問6</span>ひとこと<em class="opt-mark">任意</em></label>
-              <textarea class="input" id="message" name="message" rows="3" placeholder="近況や先生への伝言、会いたい人など"></textarea>
-            </div>
-
-            <button type="submit" class="btn btn--ink btn--block" id="submitBtn">回答を送信する</button>
-            <p class="form__status" id="formStatus" role="status" aria-live="polite"></p>
-          </form>
-        </div>
-
-        <div class="thanks" id="payDone" hidden>
-          <div class="stamp" aria-hidden="true">受付</div>
-          <h3 class="thanks__title">回答を受け付けました</h3>
-          <p class="save-state" id="saveState" role="status" aria-live="polite"></p>
-          <button type="button" class="btn btn--ink" id="retryBtn" hidden>もう一度送る</button>
-          <p class="thanks__msg" id="thanksMsg"></p>
-          <p class="thanks__count">現在の参加予定　<b id="thanksCount">–</b> 名</p>
-          <a class="btn btn--line btn--block" id="lineShare" href="#" target="_blank" rel="noopener">LINEで同級生に知らせる</a>
-          <p class="thanks__hint">まだ回答していない人にも送ってもらえると助かります。</p>
-          <button type="button" class="btn btn--plain" id="againBtn">回答を修正する</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="sec" id="pay">
-      <h2 class="sec__h"><span class="sec__n">四</span>会費のお支払い</h2>
-      <div class="sec__body">
-        <p class="sec__lead">会費は<strong>事前入金制</strong>です。会費が確定したら、このページとクラスの幹事からお知らせします。</p>
-        <ol class="flow">
-          <li>アンケートに「参加する」で回答する</li>
-          <li>PayPayで会費を送る<span id="payLinkArea" class="muted">送金リンクは会費確定後に掲載します</span></li>
-          <li>幹事が入金を確認したら、参加者用のLINEグループに招待します<span class="muted">当日の連絡や集合のお知らせはこのグループで行います</span></li>
-        </ol>
-        <p class="muted small">PayPayを使っていない方は、クラスの幹事に相談してください。</p>
-      </div>
-    </section>
-
-    <section class="sec" id="contact">
-      <h2 class="sec__h"><span class="sec__n">五</span>お問い合わせ</h2>
-      <div class="sec__body">
-        <p class="sec__lead">わからないことがあれば、<strong>このページを送ってくれた自分のクラスの幹事</strong>に連絡してください。</p>
-        <ul class="plain-list">
-          <li>回答の内容を変えたいときは、アンケートにもう一度答えてください。新しいほうの回答を使います</li>
-          <li>連絡がつかない同級生や、先生の連絡先を知っていたら、クラスの幹事に教えてください</li>
-          <li>クラスの幹事がわからない場合は、案内をくれた人に聞いてください</li>
-        </ul>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <p>武雄高校 平成27年3月卒業 同窓会幹事</p>
-    <p class="small">いただいた個人情報は本会の連絡にのみ使い、終了後に削除します。名簿と個人の回答は幹事だけが見ます。</p>
-    <p class="small"><a href="admin.html">幹事用ページ</a></p>
-  </footer>
-
-  <a href="#rsvp" class="floating-cta" id="floatingCta">参加アンケートに答える</a>
-
-  <script src="config.js"></script>
-  <script src="app.js"></script>
+<p>同窓会のページは新しいアドレスに移りました。</p>
+<p><a href="https://takeo-dousoukai.github.io/">https://takeo-dousoukai.github.io/</a></p>
 </body>
 </html>

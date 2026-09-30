@@ -9,7 +9,7 @@
 
 ## GitHub のブラウザ画面からの追加方法
 
-1. https://github.com/FREX-yoshitomi/demo/upload/main/assets を開く
+1. https://github.com/takeo-dousoukai/takeo-dousoukai.github.io/upload/main/assets を開く
 2. 写真をドラッグ＆ドロップ（ファイル名を上の名前にしておく）
 3. 「Commit changes」を押すと、1分ほどでサイトに反映されます
 
